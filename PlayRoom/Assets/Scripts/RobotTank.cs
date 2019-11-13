@@ -6,7 +6,7 @@ using System.IO.Ports;
 
 public class RobotTank : MonoBehaviour
 {
-    public SerialPort serial = new SerialPort("COM6", 9600);
+    public SerialPort serial = new SerialPort("COM7", 9600);
 
     [SerializeField]
     private GameObject leftClaw;
@@ -50,11 +50,20 @@ public class RobotTank : MonoBehaviour
     private const float slowestSpeed = 113;
     private const float fastestSpeed = 240;
 
+    private bool movementEnter = false;
+
     private float lastUpperBodyRotationZ;
     // Start is called before the first frame update
     void Start()
     {
-        serial.Open();
+        try
+        {
+            serial.Open();
+        }
+        catch
+        {
+
+        }
         serial.ReadTimeout = 1;
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         lastUpperBodyRotationZ = 0;
@@ -64,64 +73,8 @@ public class RobotTank : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        buttonPressedForce = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
-        leftControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
-        rightControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
-        leftControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch).eulerAngles;
-        rightControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
-        leftThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).y;
-        leftThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).x;
-        rightThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
-        rightThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
-
-        if (!hasObject)
-        {
-            CloseClawAfterButtonForce();
-        }
-
-        MoveUpperBody();
-
-        if (isTurned())
-        {
-            MoveLeftRight();
-            MoveForwardBackwards();
-        }
-
-        if (serial.IsOpen)
-        {
-            try
-            {
-                Debug.Log(serial.ReadByte());
-            }
-            catch (System.Exception)
-            {
-            }
-
-            if (leftThumbstickUpDown > 0.1f)
-            {
-                char sendSpeed = ((char)((int)(leftThumbstickUpDown * (fastestSpeed - slowestSpeed))));
-                serial.Write("F" + sendSpeed);
-            }
-
-            //if (leftThumbstickUpDown < -0.1f)
-            {
-                //serial.Write("B" + (char)leftThumbstickUpDown * (fastestSpeed - slowestSpeed));
-            }
-
-            //if (leftThumbstickLeftRight > 0.1f)
-            {
-                //serial.Write("L" + (char)leftThumbstickLeftRight * (fastestSpeed - slowestSpeed));
-            }
-
-            //if (leftThumbstickLeftRight < -0.1f)
-            {
-                //serial.Write("R" + (char)leftThumbstickLeftRight * (fastestSpeed - slowestSpeed));
-            }
-        }
-        else
-        {
-            serial.Open();
-        }
+        if (movementEnter == false)
+            StartCoroutine(MovementUpdates());
     }
 
     bool isTurned()
@@ -132,6 +85,86 @@ public class RobotTank : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    IEnumerator MovementUpdates()
+    {
+        movementEnter = true;
+        try
+        {
+
+            buttonPressedForce = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
+            leftControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
+            rightControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
+            leftControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch).eulerAngles;
+            rightControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
+            leftThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).y;
+            leftThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).x;
+            rightThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
+            rightThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
+
+            if (!hasObject)
+            {
+                CloseClawAfterButtonForce();
+            }
+
+            MoveUpperBody();
+
+            if (isTurned())
+            {
+                MoveLeftRight();
+                MoveForwardBackwards();
+            }
+
+            if (serial.IsOpen)
+            {
+                try
+                {
+                    Debug.Log(serial.ReadByte());
+                }
+                catch (System.Exception)
+                {
+                }
+
+                if (leftThumbstickUpDown > 0.1f)
+                {
+                    char sendSpeed = ((char)((int)(leftThumbstickUpDown * (fastestSpeed - slowestSpeed))));
+                    serial.Write("F" + sendSpeed);
+                }
+
+                else if (leftThumbstickUpDown < -0.1f)
+                {
+                    char sendSpeed = ((char)((int)((-leftThumbstickUpDown) * (fastestSpeed - slowestSpeed))));
+                    serial.Write("B" + sendSpeed);
+                }
+
+                else if (leftThumbstickLeftRight > 0.1f)
+                {
+                    char sendSpeed = ((char)((int)(leftThumbstickLeftRight * (fastestSpeed - slowestSpeed))));
+                    serial.Write("R" + sendSpeed);
+                }
+
+                else if (leftThumbstickLeftRight < -0.1f)
+                {
+                    char sendSpeed = ((char)((int)((-leftThumbstickLeftRight) * (fastestSpeed - slowestSpeed))));
+                    serial.Write("L" + sendSpeed);
+                }
+                else
+                {
+                    serial.Write("S");
+                }
+            }
+            else
+            {
+                serial.Open();
+            }
+        }
+        catch
+        {
+
+        }
+        yield return new WaitForSecondsRealtime(0.001f);
+        movementEnter = false;
     }
 
     void MoveLeftRight()

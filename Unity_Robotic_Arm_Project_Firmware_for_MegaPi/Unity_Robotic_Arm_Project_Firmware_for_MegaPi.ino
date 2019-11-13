@@ -41,32 +41,35 @@ void setup() {
   Serial.begin(9600);
 }
 
-// F - forward; B - backwards; L - left; R - right; U - up; D - down; C - close claw; O - open claw
+// S - Stay, F - forward; B - backwards; L - left; R - right; U - up; D - down; C - close claw; O - open claw
 void loop() {
 if(Serial.available())
 {
-    delay(1000);
     //You need to put in an Enum with speed values. It shouldn't be the exact value you get as input
     data = Serial.read();
     while(Serial.available() == 0) { }
-    inputSpeed = Serial.read();
     if(data == 'F'){
+      inputSpeed = Serial.read();
       float curentSpeed = inputSpeed + slowestSpeed;
       Forward(curentSpeed);
-      Serial.write((int)curentSpeed);
-      Serial.flush();
     }
     else if(data == 'B'){
-      Backward(inputSpeed + slowestSpeed);
+      inputSpeed = Serial.read();
+      float curentSpeed = inputSpeed + slowestSpeed;
+      Backward(curentSpeed);
     }
     else if(data == 'L'){
-      TurnLeft(inputSpeed + slowestSpeed);
+      inputSpeed = Serial.read();
+      float curentSpeed = inputSpeed + slowestSpeed;
+      TurnLeft(curentSpeed);
     }
     else if(data == 'R'){
-      TurnRight(inputSpeed + slowestSpeed);
+      inputSpeed = Serial.read();
+      float curentSpeed = inputSpeed + slowestSpeed;
+      TurnRight(curentSpeed);
+    }
+    else if(data == 'S'){
+      StayStill();
     }
   }
-else{
-  StayStill();
-}
 }
