@@ -2,9 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO.Ports;
 
 public class RobotTank : MonoBehaviour
 {
+    public SerialPort serial = new SerialPort("COM6", 9600);
+
     [SerializeField]
     private GameObject leftClaw;
     [SerializeField]
@@ -44,11 +47,15 @@ public class RobotTank : MonoBehaviour
     private const float maximumForwardsUpperBodyRotation = 0f;
     private const float rotationSpeed = 1f;
     private const float movementSpeed = 0.005f;
+    private const float slowestSpeed = 113;
+    private const float fastestSpeed = 240;
 
     private float lastUpperBodyRotationZ;
     // Start is called before the first frame update
     void Start()
     {
+        serial.Open();
+        serial.ReadTimeout = 1;
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         lastUpperBodyRotationZ = 0;
         upperBody.transform.localRotation = Quaternion.Euler(upperBody.transform.localRotation.eulerAngles.x, upperBody.transform.localRotation.eulerAngles.y, -50);
@@ -78,6 +85,42 @@ public class RobotTank : MonoBehaviour
         {
             MoveLeftRight();
             MoveForwardBackwards();
+        }
+
+        if (serial.IsOpen)
+        {
+            try
+            {
+                Debug.Log(serial.ReadByte());
+            }
+            catch (System.Exception)
+            {
+            }
+
+            if (leftThumbstickUpDown > 0.1f)
+            {
+                char sendSpeed = ((char)((int)(leftThumbstickUpDown * (fastestSpeed - slowestSpeed))));
+                serial.Write("F" + sendSpeed);
+            }
+
+            //if (leftThumbstickUpDown < -0.1f)
+            {
+                //serial.Write("B" + (char)leftThumbstickUpDown * (fastestSpeed - slowestSpeed));
+            }
+
+            //if (leftThumbstickLeftRight > 0.1f)
+            {
+                //serial.Write("L" + (char)leftThumbstickLeftRight * (fastestSpeed - slowestSpeed));
+            }
+
+            //if (leftThumbstickLeftRight < -0.1f)
+            {
+                //serial.Write("R" + (char)leftThumbstickLeftRight * (fastestSpeed - slowestSpeed));
+            }
+        }
+        else
+        {
+            serial.Open();
         }
     }
 
