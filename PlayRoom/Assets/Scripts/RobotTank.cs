@@ -6,7 +6,7 @@ using System.IO.Ports;
 
 public class RobotTank : MonoBehaviour
 {
-    public SerialPort serial = new SerialPort("COM7", 9600);
+    public SerialPort serial = new SerialPort("COM8", 9600);
 
     [SerializeField]
     private GameObject leftClaw;
@@ -47,8 +47,13 @@ public class RobotTank : MonoBehaviour
     private const float maximumForwardsUpperBodyRotation = 0f;
     private const float rotationSpeed = 1f;
     private const float movementSpeed = 0.005f;
-    private const float slowestSpeed = 113;
-    private const float fastestSpeed = 240;
+    private const float fastestSpeed = 160;
+    private const float maximumRadius = 1;
+
+    private float speedMultiplyer = 0;
+    private float arithmeticMedian = 1;
+    private float xNomalized = 0;
+    private float yNomalized = 0;
 
     private bool movementEnter = false;
 
@@ -103,6 +108,25 @@ public class RobotTank : MonoBehaviour
             rightThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
             rightThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
 
+            speedMultiplyer = (float)Math.Sqrt(Math.Pow(Math.Sin(Math.PI * leftThumbstickUpDown), 2) + Math.Pow(Math.Cos(Math.PI * leftThumbstickLeftRight), 2)) / maximumRadius;
+
+            arithmeticMedian = Math.Abs(leftThumbstickUpDown) + Math.Abs(leftThumbstickLeftRight);
+            if (arithmeticMedian != 0)
+            {
+                yNomalized = leftThumbstickUpDown / arithmeticMedian;
+                xNomalized = leftThumbstickLeftRight / arithmeticMedian;
+
+                if (yNomalized < 0)
+                {
+                    xNomalized *= -1;
+                }
+            }
+            else
+            {
+                xNomalized = 0;
+                yNomalized = 0;
+            }
+
             if (!hasObject)
             {
                 CloseClawAfterButtonForce();
@@ -114,56 +138,83 @@ public class RobotTank : MonoBehaviour
             {
                 MoveLeftRight();
                 MoveForwardBackwards();
-            }
 
-            if (serial.IsOpen)
-            {
-                try
-                {
-                    Debug.Log(serial.ReadByte());
-                }
-                catch (System.Exception)
-                {
-                }
 
-                if (leftThumbstickUpDown > 0.1f)
+                if (serial.IsOpen)
                 {
-                    char sendSpeed = ((char)((int)(leftThumbstickUpDown * (fastestSpeed - slowestSpeed))));
-                    serial.Write("F" + sendSpeed);
-                }
+                    try
+                    {
+                        Debug.Log("motor1SpeedSign:" + (char)serial.ReadByte());
+                        Debug.Log("motor1Speed:" + (char)serial.ReadByte());
+                        Debug.Log("motor1SpeedPart2:" + (char)serial.ReadByte());
+                        Debug.Log("motor2SpeedSign:" + (char)serial.ReadByte());
+                        Debug.Log("motor2Speed:" + (char)serial.ReadByte());
+                        Debug.Log("motor2SpeedPart2:" + (char)serial.ReadByte());
+                    }
+                    catch (System.Exception)
+                    {
+                    }
 
-                else if (leftThumbstickUpDown < -0.1f)
-                {
-                    char sendSpeed = ((char)((int)((-leftThumbstickUpDown) * (fastestSpeed - slowestSpeed))));
-                    serial.Write("B" + sendSpeed);
-                }
+                    float forwardSpeedValue = yNomalized * fastestSpeed;
+                    float rotationSpeedValue = xNomalized * fastestSpeed;
 
-                else if (leftThumbstickLeftRight > 0.1f)
-                {
-                    char sendSpeed = ((char)((int)(leftThumbstickLeftRight * (fastestSpeed - slowestSpeed))));
-                    serial.Write("R" + sendSpeed);
-                }
+                    if (forwardSpeedValue != 0 && rotationSpeedValue != 0)
+                    {
+                        float motor1Speed = ((forwardSpeedValue - rotationSpeedValue) / 2) * speedMultiplyer; // R part 1
+                        float motor1SpeedPart2 = motor1Speed; // R part 2
 
-                else if (leftThumbstickLeftRight < -0.1f)
-                {
-                    char sendSpeed = ((char)((int)((-leftThumbstickLeftRight) * (fastestSpeed - slowestSpeed))));
-                    serial.Write("L" + sendSpeed);
+                        float motor2Speed = (-(forwardSpeedValue + rotationSpeedValue) / 2) * speedMultiplyer; // L part 1
+                        float motor2SpeedPart2 = motor2Speed; // L part 2
+
+                        char motor1SpeedSign = 'P'; // R sign
+                        char motor2SpeedSign = 'P'; // L sign
+
+                        if (motor1Speed < 0)
+                        {
+                            motor1Speed *= -1;
+                            motor1SpeedPart2 *= -1;
+                            motor1SpeedSign = 'N';
+                        }
+
+                        if (motor2Speed < 0)
+                        {
+                            motor2Speed *= -1;
+                            motor2SpeedPart2 *= -1;
+                            motor2SpeedSign = 'N';
+                        }
+
+                        char motor1SpeedSend = ((char)((int)(motor1Speed))); // R part 1
+                        char motor1SpeedPart2Send = ((char)((int)(motor1SpeedPart2))); // R part 2
+                        
+                        char motor2SpeedSend = ((char)((int)(motor2Speed))); // L part 1
+                        char motor2SpeedPart2Send = ((char)((int)(motor2SpeedPart2))); // L part 2
+                        
+                        string completeSend = "M" + motor1SpeedSign + motor1SpeedSend + motor1SpeedPart2Send + 
+                            motor2SpeedSign + motor2SpeedSend + motor2SpeedPart2Send;
+                        Debug.Log(completeSend);
+                        serial.Write(completeSend);
+                    }
+                    else
+                    {
+                        serial.Write("S");
+                    }
+                
                 }
                 else
                 {
-                    serial.Write("S");
+                    serial.Open();
                 }
             }
             else
             {
-                serial.Open();
+                serial.Write("S");
             }
         }
         catch
         {
 
         }
-        yield return new WaitForSecondsRealtime(0.001f);
+        yield return new WaitForSecondsRealtime(0.0000f);
         movementEnter = false;
     }
 

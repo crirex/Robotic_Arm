@@ -4,72 +4,66 @@ MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
 
 int data;
-int inputSpeed;
-int slowestSpeed = 113;
-
-void Forward(float speed)
-{
-  Encoder_1.setMotorPwm(speed);
-  Encoder_2.setMotorPwm(-speed);
-}
-
-void Backward(float speed)
-{
-  Encoder_1.setMotorPwm(-speed);
-  Encoder_2.setMotorPwm(speed);
-}
-
-void TurnLeft(float speed)
-{
-  Encoder_1.setMotorPwm(speed);
-  Encoder_2.setMotorPwm(speed);
-}
-
-void TurnRight(float speed)
-{
-  Encoder_1.setMotorPwm(-speed);
-  Encoder_2.setMotorPwm(-speed);
-}
-
-void StayStill()
-{
-  Encoder_1.setMotorPwm(0);
-  Encoder_2.setMotorPwm(0);
-}
 
 void setup() {
   Serial.begin(9600);
 }
 
-// S - Stay, F - forward; B - backwards; L - left; R - right; U - up; D - down; C - close claw; O - open claw
+void stay() {
+  Encoder_1.setMotorPwm(0);
+  Encoder_2.setMotorPwm(0);
+}
+
+// S - stay; M - move; U - up; D - down; C - close claw; O - open claw; P - positive; N - Negative
 void loop() {
 if(Serial.available())
 {
-    //You need to put in an Enum with speed values. It shouldn't be the exact value you get as input
-    data = Serial.read();
+  while(Serial.available() == 0) { }
+  data = Serial.read(); 
+  if(data == 'M'){
     while(Serial.available() == 0) { }
-    if(data == 'F'){
-      inputSpeed = Serial.read();
-      float curentSpeed = inputSpeed + slowestSpeed;
-      Forward(curentSpeed);
+    int motor1SpeedSign = Serial.read(); // R sign
+    Serial.write(motor1SpeedSign);
+
+    while(Serial.available() == 0) { }
+    int motor1Speed = Serial.read(); // R part 1
+    Serial.write(motor1Speed);
+
+    while(Serial.available() == 0) { }
+    int motor1SpeedPart2 = Serial.read(); // R part 2
+    Serial.write(motor1SpeedPart2);
+
+    while(Serial.available() == 0) { }
+    int motor2SpeedSign = Serial.read(); // R sign
+    Serial.write(motor2SpeedSign);
+
+    while(Serial.available() == 0) { }
+    int motor2Speed = Serial.read(); // L part 1
+    Serial.write(motor2Speed);
+
+    while(Serial.available() == 0) { }
+    int motor2SpeedPart2 = Serial.read(); // L part 2
+    Serial.write(motor2SpeedPart2);
+    Serial.flush();
+    
+    motor1Speed = motor1Speed + motor1SpeedPart2;
+    motor2Speed = motor2Speed + motor2SpeedPart2;
+    
+    if(motor1SpeedSign == 'N')
+    {
+      motor1Speed = motor1Speed * -1;
     }
-    else if(data == 'B'){
-      inputSpeed = Serial.read();
-      float curentSpeed = inputSpeed + slowestSpeed;
-      Backward(curentSpeed);
+    
+    if(motor2SpeedSign == 'N')
+    {
+      motor2Speed = motor2Speed * -1;
     }
-    else if(data == 'L'){
-      inputSpeed = Serial.read();
-      float curentSpeed = inputSpeed + slowestSpeed;
-      TurnLeft(curentSpeed);
-    }
-    else if(data == 'R'){
-      inputSpeed = Serial.read();
-      float curentSpeed = inputSpeed + slowestSpeed;
-      TurnRight(curentSpeed);
-    }
-    else if(data == 'S'){
-      StayStill();
+     
+    Encoder_1.setMotorPwm(motor1Speed);
+    Encoder_2.setMotorPwm(motor2Speed);
+    } else if (data == 'S')
+    {
+      stay();
     }
   }
 }
