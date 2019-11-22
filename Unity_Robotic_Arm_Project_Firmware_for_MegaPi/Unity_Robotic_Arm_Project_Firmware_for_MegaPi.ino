@@ -14,6 +14,23 @@ void stay() {
   Encoder_2.setMotorPwm(0);
 }
 
+int constrainToMaxAndMinSpeed(int speed)
+{
+  const int maximumSpeed = 255;
+  const int minimumSpeed = 100;
+  
+  if (speed > maximumSpeed)
+  {
+    return maximumSpeed;
+  }
+
+  if (speed < minimumSpeed)
+  {
+    return minimumSpeed;
+  }
+  return speed;
+}
+
 // S - stay; M - move; U - up; D - down; C - close claw; O - open claw; P - positive; N - Negative
 void loop() {
 if(Serial.available())
@@ -46,9 +63,9 @@ if(Serial.available())
     Serial.write(motor2SpeedPart2);
     Serial.flush();
     
-    motor1Speed = motor1Speed + motor1SpeedPart2;
-    motor2Speed = motor2Speed + motor2SpeedPart2;
-    
+    motor1Speed = constrainToMaxAndMinSpeed(motor1Speed + motor1SpeedPart2);
+    motor2Speed = constrainToMaxAndMinSpeed(motor2Speed + motor2SpeedPart2);
+
     if(motor1SpeedSign == 'N')
     {
       motor1Speed = motor1Speed * -1;
@@ -58,7 +75,7 @@ if(Serial.available())
     {
       motor2Speed = motor2Speed * -1;
     }
-     
+
     Encoder_1.setMotorPwm(motor1Speed);
     Encoder_2.setMotorPwm(motor2Speed);
     } else if (data == 'S')

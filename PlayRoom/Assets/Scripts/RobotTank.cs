@@ -47,8 +47,10 @@ public class RobotTank : MonoBehaviour
     private const float maximumForwardsUpperBodyRotation = 0f;
     private const float rotationSpeed = 1f;
     private const float movementSpeed = 0.005f;
-    private const float fastestSpeed = 160;
+    private const float fastestSpeed = 60; //This is going to be let at 200 at least, it's so low to not make too much sound
+
     private const float maximumRadius = 1;
+    private const float backwardsRotation = 1; //1 for normal, -1 for inverse
 
     private float speedMultiplyer = 0;
     private float arithmeticMedian = 1;
@@ -118,7 +120,7 @@ public class RobotTank : MonoBehaviour
 
                 if (yNomalized < 0)
                 {
-                    xNomalized *= -1;
+                    xNomalized *= backwardsRotation;
                 }
             }
             else
