@@ -24,6 +24,7 @@ public class RobotTank : MonoBehaviour
     public static bool hasObject = false;
 
     float buttonPressedForce;
+    float buttonPressedForce2;
     float leftThumbstickUpDown;
     float leftThumbstickLeftRight;
     float rightThumbstickUpDown;
@@ -47,7 +48,9 @@ public class RobotTank : MonoBehaviour
     private const float maximumForwardsUpperBodyRotation = 0f;
     private const float rotationSpeed = 1f;
     private const float movementSpeed = 0.005f;
-    private const float fastestSpeed = 60; //This is going to be let at 200 at least, it's so low to not make too much sound
+    private const float fastestMovementSpeed = 60; //This is going to be let at 200 at least, it's so it doesn't make too much sound
+    private const float fastestArmSpeed = 120;
+    private const float fastestClawSpeed = 120;
 
     private const float maximumRadius = 1;
     private const float backwardsRotation = 1; //1 for normal, -1 for inverse
@@ -101,6 +104,7 @@ public class RobotTank : MonoBehaviour
         {
 
             buttonPressedForce = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
+            buttonPressedForce2 = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger);
             leftControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
             rightControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
             leftControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch).eulerAngles;
@@ -157,8 +161,8 @@ public class RobotTank : MonoBehaviour
                     {
                     }
 
-                    float forwardSpeedValue = yNomalized * fastestSpeed;
-                    float rotationSpeedValue = xNomalized * fastestSpeed;
+                    float forwardSpeedValue = yNomalized * fastestMovementSpeed;
+                    float rotationSpeedValue = xNomalized * fastestMovementSpeed;
 
                     if (forwardSpeedValue != 0 && rotationSpeedValue != 0)
                     {
@@ -198,9 +202,67 @@ public class RobotTank : MonoBehaviour
                     }
                     else
                     {
-                        serial.Write("S");
+                        serial.Write("m");
                     }
-                
+
+
+                    float armSpeedValue = -rightThumbstickUpDown * fastestArmSpeed;
+
+                    if (Math.Abs(rightThumbstickUpDown) > 0.2)
+                    {
+                        float armSpeed = armSpeedValue/2; // arm part 1
+                        float armSpeedPart2 = armSpeed; // arm part 2
+                        char armSpeedSign = 'P'; // arm sign
+
+                        if (armSpeed < 0)
+                        {
+                            armSpeed *= -1;
+                            armSpeedPart2 *= -1;
+                            armSpeedSign = 'N';
+                        }
+
+                        char armSpeedSend = ((char)((int)(armSpeed))); // arm part 1
+                        char armSpeedPart2Send = ((char)((int)(armSpeedPart2))); // arm part 2
+
+                        string completeSend = "A" + armSpeedSign + armSpeedSend + armSpeedPart2Send;
+                        serial.Write(completeSend);
+
+
+                    }
+                    else
+                    {
+                        serial.Write("a");
+                    }
+
+                    float clawSpeedValue = (buttonPressedForce - buttonPressedForce2) * fastestClawSpeed;
+
+                    if (clawSpeedValue != 0 && (Math.Abs(buttonPressedForce) > 0.1 || Math.Abs(buttonPressedForce2) > 0.1))
+                    {
+                        float clawSpeed = clawSpeedValue / 2; // arm part 1
+                        float clawSpeedPart2 = clawSpeed; // arm part 2
+                        char clawSpeedSign = 'P'; // arm sign
+
+                        if (clawSpeed < 0)
+                        {
+                            clawSpeed *= -1;
+                            clawSpeedPart2 *= -1;
+                            clawSpeedSign = 'N';
+                        }
+
+                        char clawSpeedSend = ((char)((int)(clawSpeed))); // arm part 1
+                        char clawSpeedPart2Send = ((char)((int)(clawSpeedPart2))); // arm part 2
+
+                        string completeSend = "C" + clawSpeedSign + clawSpeedSend + clawSpeedPart2Send;
+                        serial.Write(completeSend);
+
+
+                    }
+                    else
+                    {
+                        serial.Write("c");
+                    }
+
+
                 }
                 else
                 {
@@ -209,7 +271,9 @@ public class RobotTank : MonoBehaviour
             }
             else
             {
-                serial.Write("S");
+                serial.Write("m");
+                serial.Write("a");
+                serial.Write("c");
             }
         }
         catch
