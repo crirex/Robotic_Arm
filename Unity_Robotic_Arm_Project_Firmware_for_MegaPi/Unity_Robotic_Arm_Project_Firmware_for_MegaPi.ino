@@ -9,7 +9,7 @@ int data;
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   dc.reset(PORT4B);
 }
 
@@ -30,7 +30,7 @@ int awaitRead()
 
 int constrainToMaxAndMinSpeed(int speed)
 {
-  const int maximumSpeed = 255;
+  const int maximumSpeed = 186;
   const int minimumSpeed = 100;
   
   if (speed > maximumSpeed)
@@ -50,7 +50,7 @@ int getMotorSpeed()
   int motorSpeedSign = awaitRead(); // sign
   int motorSpeed = awaitRead(); // part 1
   int motorSpeedPart2 = awaitRead(); // part 2
-  motorSpeed = constrainToMaxAndMinSpeed(motorSpeed + motorSpeedPart2);
+  motorSpeed = constrainToMaxAndMinSpeed(motorSpeed + motorSpeedPart2 + 50);
   return motorSpeed * getSignByCharacter(motorSpeedSign);
 }
 
@@ -97,15 +97,15 @@ void loop()
   else if (data == 'm')
   {
     notMoveAction();
-  } 
+  }
   else if (data == 'C')
   {
     clawAction();
-  } 
+  }
   else if (data == 'c')
   {
     notClawAction();
-  } 
+  }
   else if (data == 'A')
   {
     armAction();
