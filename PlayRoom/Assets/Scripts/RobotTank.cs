@@ -6,14 +6,18 @@ using System.IO.Ports;
 
 public class RobotTank : MonoBehaviour
 {
-    public SerialPort serial = new SerialPort("COM6", 115200);
+    public SerialPort serial = new SerialPort("COM4", 115200);
 
     [SerializeField]
     private GameObject leftClaw;
     [SerializeField]
     private GameObject rightClaw;
     [SerializeField]
-    private GameObject upperBody;
+    private GameObject upperBodyBelow;
+    [SerializeField]
+    private GameObject upperBodyAbove;
+    [SerializeField]
+    private GameObject clawSupport;
     [SerializeField]
     private GameObject movementBody;
     [SerializeField]
@@ -23,8 +27,10 @@ public class RobotTank : MonoBehaviour
 
     public static bool hasObject = false;
 
-    float buttonPressedForce;
-    float buttonPressedForce2;
+    float rightHandTrigger;
+    float leftHandTrigger;
+    float rightIndexTrigger;
+    float leftIndexTrigger;
     float leftThumbstickUpDown;
     float leftThumbstickLeftRight;
     float rightThumbstickUpDown;
@@ -35,7 +41,8 @@ public class RobotTank : MonoBehaviour
     Vector3 rightControllerRotation;
 
     private const float maximumOutwardsClawRotation = 0f; //Rotations tested for right claw, left claw has oposite rotations
-    private const float maximumInwardsClawRotation = -28.2f;
+    //private const float maximumInwardsClawRotation = -28.2f;
+    private const float maximumInwardsClawRotation = -32.8f;
     private const float OutwardsXPosition = 0.0654f;
     private const float InwardsRightClawXPosition = 0.0716f;
     private const float InwardsLeftClawXPosition = OutwardsXPosition - (InwardsRightClawXPosition - OutwardsXPosition);
@@ -43,17 +50,20 @@ public class RobotTank : MonoBehaviour
     private const float InwardsRightClawZPosition = 0.2062f;
     private const float InwardsLeftClawZPosition = OutwardsZPosition - (OutwardsZPosition - InwardsRightClawZPosition);
     private const float maximumMotorObjectZPositionOffset = -0.01f;
-    private float firstMotorObjectZPosition;
-    private const float maximumBackwardsUpperBodyRotation = -110f;
+    private const float maximumBackwardsUpperBodyRotation = -95.3f;
     private const float maximumForwardsUpperBodyRotation = 0f;
 
-    private const int maximumSpeed = 186;
+    private const int maximumSpeed = 254;
     private const int minimumSpeed = 100;
 
-    private const float rotationSpeedCorrector = 0.32f * (1f / ((float)maximumSpeed - (float)minimumSpeed));
-    private const float forwardSpeedCorrector = 0.001f * (1f / ((float)maximumSpeed - (float)minimumSpeed));
-    private const float armSpeedCorrector = 0.13f * (1f / ((float)maximumSpeed - (float)minimumSpeed));
-    
+    private const int firstSafeAsciiCharacter = 33;
+    private const int lastSafeAsciiCharacter = 126;
+
+    private const float rotationSpeedCorrector = 0.00164f;
+    private const float forwardSpeedCorrector = 0.0000085f;
+    private const float armSpeedCorrector = 0.00065f;
+    private const float clawSpeedCorrector = 0.0014f;
+
     private const float maximumRadius = 1f;
 
     int forwardSpeedValue = 0;
@@ -61,7 +71,10 @@ public class RobotTank : MonoBehaviour
     int armSpeedValue = 0;
     int clawSpeedValue = 0;
 
+    private float firstMotorObjectZPosition;
     private float lastUpperBodyRotationZ;
+    private float lastClawRotation;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,64 +83,64 @@ public class RobotTank : MonoBehaviour
 
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         lastUpperBodyRotationZ = 0;
-        upperBody.transform.localRotation = Quaternion.Euler(upperBody.transform.localRotation.eulerAngles.x, upperBody.transform.localRotation.eulerAngles.y, -50);
+        lastClawRotation = 0;
+        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyBelow.transform.localRotation.eulerAngles.x, upperBodyBelow.transform.localRotation.eulerAngles.y, -50);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        buttonPressedForce = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
-        buttonPressedForce2 = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger);
+        rightHandTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
+        leftHandTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger);
+
+        rightIndexTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger);
+        leftIndexTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger);
+
         leftControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
         rightControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
+
         leftControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch).eulerAngles;
         rightControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
+
         leftThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).y;
-        leftThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).x;
         rightThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
+
+        leftThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).x;
         rightThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
 
         Vector2 rotationAndForwardValue = CalculateRotaionAndForwardSpeed();
-
-        rotationSpeedValue = (int)rotationAndForwardValue.x;
-        forwardSpeedValue = (int)rotationAndForwardValue.y;
-        armSpeedValue = NormalizeValue((int)(-rightThumbstickUpDown * maximumSpeed));
-        clawSpeedValue = NormalizeValue((int)((buttonPressedForce - buttonPressedForce2) * maximumSpeed));
-
-        if (forwardSpeedValue != 0 && rotationSpeedValue != 0)
-        {
-            if (IsNotTurned())
-            {
-                MoveLeftRight();
-                MoveForwardBackwards();
-            }
-            serial.Write(GetMovementSendString());
-        }
-        else
-        {
-            serial.Write("m");
-        }
+        rotationSpeedValue = NormalizeValue((int)rotationAndForwardValue.x);
+        forwardSpeedValue = NormalizeValue((int)rotationAndForwardValue.y);
 
         if (Math.Abs(rightThumbstickUpDown) > 0.2)
         {
-            MoveUpperBody();
-            serial.Write(GetUpperBodySendString());
+            armSpeedValue = NormalizeValue((int)(-rightThumbstickUpDown * maximumSpeed));
         }
         else
         {
-            serial.Write("a");
+            armSpeedValue = 0;
         }
 
-        if (clawSpeedValue != 0 && (Math.Abs(buttonPressedForce) > 0.1 || Math.Abs(buttonPressedForce2) > 0.1))
+        if ((Math.Abs(rightHandTrigger) > 0.1 || Math.Abs(leftHandTrigger) > 0.1))
         {
-            CloseClawAfterButtonForce();
-            serial.Write(GetClawSendString());
+            clawSpeedValue = NormalizeValue((int)((rightHandTrigger - leftHandTrigger) * maximumSpeed));
         }
         else
         {
-            serial.Write("c");
+            clawSpeedValue = 0;
         }
+
+        Debug.Log(""+forwardSpeedValue + " " + rotationSpeedValue + " " + armSpeedValue + " " + clawSpeedValue);
+
+        MoveLeftRight();
+        MoveForwardBackwards();
+        MoveUpperBody();
+        CloseClawAfterButtonForce();
+
+        serial.Write(GetMovementSendString());
+        serial.Write(GetUpperBodySendString());
+        serial.Write(GetClawSendString());
     }
 
     bool IsNotTurned()
@@ -142,53 +155,64 @@ public class RobotTank : MonoBehaviour
 
     void MoveLeftRight()
     {
-        var wholeBodyAngles = rotationBody.transform.localRotation.eulerAngles;
-        float rotateToValue = wholeBodyAngles.z - rotationSpeedCorrector * rotationSpeedValue;
-        Debug.Log(rotationSpeedCorrector * rotationSpeedValue);
-        rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
+        if (IsNotTurned())
+        {
+            var wholeBodyAngles = rotationBody.transform.localRotation.eulerAngles;
+            float rotateToValue = wholeBodyAngles.z - rotationSpeedCorrector * rotationSpeedValue;
+            Debug.Log(rotationSpeedCorrector * rotationSpeedValue);
+            rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
+        }
     }
 
     void MoveForwardBackwards()
     {
-        var wholeBodyPosition = movementBody.transform.localPosition;
-        float moveToValue = wholeBodyPosition.y + forwardSpeedCorrector * forwardSpeedValue;
-        Debug.Log(forwardSpeedCorrector * forwardSpeedValue);
-        movementBody.transform.localPosition = new Vector3(wholeBodyPosition.x, moveToValue, wholeBodyPosition.z);
-        this.transform.position = movementBody.transform.position;
-        movementBody.transform.localPosition = new Vector3(0, 0, 0);
+        if (IsNotTurned())
+        {
+            var wholeBodyPosition = movementBody.transform.localPosition;
+            float moveToValue = wholeBodyPosition.y + forwardSpeedCorrector * forwardSpeedValue;
+            Debug.Log(forwardSpeedCorrector * forwardSpeedValue);
+            movementBody.transform.localPosition = new Vector3(wholeBodyPosition.x, moveToValue, wholeBodyPosition.z);
+            this.transform.position = movementBody.transform.position;
+            movementBody.transform.localPosition = new Vector3(0, 0, 0);
+        }
     }
 
     void CloseClawAfterButtonForce()
     {
         if (!hasObject)
         {
-            float resultingRotationValue = (maximumOutwardsClawRotation - maximumInwardsClawRotation) * (1 - buttonPressedForce) + maximumInwardsClawRotation;
+            //float resultingRotationValue = (maximumOutwardsClawRotation - maximumInwardsClawRotation) * (1 - rightHandTrigger) + maximumInwardsClawRotation;
+            float resultingRotationValue = GetValueInBordersForClaw();
             var rightAngles = rightClaw.transform.localRotation.eulerAngles;
-            var leftAngles = rightClaw.transform.localRotation.eulerAngles;
+            var leftAngles = leftClaw.transform.localRotation.eulerAngles;
             rightClaw.transform.localRotation = Quaternion.Euler(rightAngles.x, resultingRotationValue, rightAngles.z);
             leftClaw.transform.localRotation = Quaternion.Euler(leftAngles.x, -resultingRotationValue, leftAngles.z);
 
+            float closedPercent = 1 - resultingRotationValue / (maximumOutwardsClawRotation - maximumInwardsClawRotation);
+
             rightClaw.transform.localPosition = new Vector3(
-                (InwardsRightClawXPosition - OutwardsXPosition) * buttonPressedForce + OutwardsXPosition,
+                (InwardsRightClawXPosition - OutwardsXPosition) * closedPercent + OutwardsXPosition,
                 rightClaw.transform.localPosition.y,
-                (InwardsRightClawZPosition - OutwardsZPosition) * buttonPressedForce + OutwardsZPosition);
+                (InwardsRightClawZPosition - OutwardsZPosition) * closedPercent + OutwardsZPosition);
 
             leftClaw.transform.localPosition = new Vector3(
-                (InwardsLeftClawXPosition - OutwardsXPosition) * buttonPressedForce + OutwardsXPosition,
+                (InwardsLeftClawXPosition - OutwardsXPosition) * closedPercent + OutwardsXPosition,
                 leftClaw.transform.localPosition.y,
-                (InwardsLeftClawZPosition - OutwardsZPosition) * buttonPressedForce + OutwardsZPosition);
+                (InwardsLeftClawZPosition - OutwardsZPosition) * closedPercent + OutwardsZPosition);
 
             motorObject.transform.localPosition = new Vector3(motorObject.transform.localPosition.x,
                 motorObject.transform.localPosition.y,
-                firstMotorObjectZPosition + maximumMotorObjectZPositionOffset * buttonPressedForce);
+                firstMotorObjectZPosition + maximumMotorObjectZPositionOffset * closedPercent);
         }
     }
 
     void MoveUpperBody()
     {
-        var upperBodyAngles = upperBody.transform.localRotation.eulerAngles;
+        var upperBodyAngles = upperBodyBelow.transform.localRotation.eulerAngles;
         Debug.Log(GetValueInBordersForUpperBody());
-        upperBody.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, GetValueInBordersForUpperBody());
+        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, GetValueInBordersForUpperBody());
+        upperBodyAbove.transform.localRotation = upperBodyBelow.transform.localRotation;
+        clawSupport.transform.eulerAngles = new Vector3(270, clawSupport.transform.eulerAngles.y, clawSupport.transform.eulerAngles.z);
     }
 
     float GetValueInBordersForUpperBody()
@@ -198,37 +222,61 @@ public class RobotTank : MonoBehaviour
         {
             lastUpperBodyRotationZ = rotateToValue;
         }
+        else if (rotateToValue > maximumForwardsUpperBodyRotation)
+        {
+            lastUpperBodyRotationZ = maximumForwardsUpperBodyRotation;
+        }
+        else if (rotateToValue < maximumBackwardsUpperBodyRotation)
+        {
+            lastUpperBodyRotationZ = maximumBackwardsUpperBodyRotation;
+        }
         return lastUpperBodyRotationZ;
+    }
+
+    float GetValueInBordersForClaw()
+    {
+        float rotateToValue = lastClawRotation + clawSpeedCorrector * -clawSpeedValue;
+        if (maximumInwardsClawRotation < rotateToValue && rotateToValue < maximumOutwardsClawRotation)
+        {
+            lastClawRotation = rotateToValue;
+        }
+        else if(rotateToValue > maximumOutwardsClawRotation)
+        {
+            lastClawRotation = maximumOutwardsClawRotation;
+        }
+        else if (rotateToValue < maximumInwardsClawRotation)
+        {
+            lastClawRotation = maximumInwardsClawRotation;
+        }
+        return lastClawRotation;
     }
 
     Vector2 CalculateRotaionAndForwardSpeed()
     {
         float xNomalized = 0;
         float yNomalized = 0;
-        float arithmeticMedian = Math.Abs(leftThumbstickUpDown) + Math.Abs(leftThumbstickLeftRight);
-        float speedMultiplyer = (float)Math.Sqrt(Math.Pow(Math.Sin(Math.PI * leftThumbstickUpDown), 2) + Math.Pow(Math.Cos(Math.PI * leftThumbstickLeftRight), 2)) / maximumRadius;
+        //float arithmeticMedian = Math.Abs(leftThumbstickUpDown) + Math.Abs(leftThumbstickLeftRight);
+        float speedMultiplyer = 1;// (float)Math.Sqrt(Math.Pow(Math.Sin(Math.PI * leftThumbstickUpDown), 2) + Math.Pow(Math.Cos(Math.PI * leftThumbstickLeftRight), 2)) / maximumRadius;
 
-        if (arithmeticMedian != 0)
+        //if (arithmeticMedian != 0)
         {
-            xNomalized = leftThumbstickLeftRight / arithmeticMedian;
-            yNomalized = leftThumbstickUpDown / arithmeticMedian;
+            //xNomalized = leftThumbstickLeftRight / arithmeticMedian;
+            xNomalized = leftThumbstickLeftRight;
+            //yNomalized = leftThumbstickUpDown / arithmeticMedian;
+            yNomalized = rightIndexTrigger-leftIndexTrigger;
         }
 
         float speedValue = NormalizeValue((int)(maximumSpeed * speedMultiplyer));
 
         float rotationSpeed = xNomalized * speedValue;
         float forwardSpeed = yNomalized * speedValue;
-        Debug.Log("" + xNomalized.ToString() + " " + yNomalized.ToString() + " " + speedValue.ToString() + " " + rotationSpeed.ToString() + " " + forwardSpeed.ToString());
         return new Vector2(rotationSpeed, forwardSpeed);
     }
 
     string GetMovementSendString()
     {
-        int motor1Speed = NormalizeValue(forwardSpeedValue - rotationSpeedValue) / 2; // R part 1
-        int motor1SpeedPart2 = motor1Speed; // R part 2
-
-        int motor2Speed = NormalizeValue(-(forwardSpeedValue + rotationSpeedValue)) / 2; // L part 1
-        int motor2SpeedPart2 = motor2Speed; // L part 2
+        int motor1Speed = NormalizeValue(forwardSpeedValue - rotationSpeedValue) / 3; // movement R speed
+        int motor2Speed = NormalizeValue(-(forwardSpeedValue + rotationSpeedValue)) / 3; // movement L speed
 
         char motor1SpeedSign = 'P'; // R sign
         char motor2SpeedSign = 'P'; // L sign
@@ -236,67 +284,52 @@ public class RobotTank : MonoBehaviour
         if (motor1Speed < 0)
         {
             motor1Speed *= -1;
-            motor1SpeedPart2 *= -1;
             motor1SpeedSign = 'N';
         }
 
         if (motor2Speed < 0)
         {
             motor2Speed *= -1;
-            motor2SpeedPart2 *= -1;
             motor2SpeedSign = 'N';
         }
 
-        char motor1SpeedSend = (char)motor1Speed; // R part 1
-        char motor1SpeedPart2Send = (char)motor1SpeedPart2; // R part 2
+        char motor1SpeedSend = (char)(motor1Speed + firstSafeAsciiCharacter);
+        char motor2SpeedSend = (char)(motor2Speed + firstSafeAsciiCharacter);
 
-        char motor2SpeedSend = (char)motor2Speed; // L part 1
-        char motor2SpeedPart2Send = (char)motor2SpeedPart2; // L part 2
-
-        Debug.Log("M" + motor1SpeedSign + motor1SpeedSend + motor1SpeedPart2Send +
-            motor2SpeedSign + motor2SpeedSend + motor2SpeedPart2Send);
-        Debug.Log("M" + motor1SpeedSign + motor1Speed.ToString() + motor1SpeedPart2.ToString() +
-            motor2SpeedSign + motor2Speed.ToString() + motor2SpeedPart2.ToString());
-        return "M" + motor1SpeedSign + motor1SpeedSend + motor1SpeedPart2Send +
-            motor2SpeedSign + motor2SpeedSend + motor2SpeedPart2Send;
+        return "M" + motor1SpeedSign + motor1SpeedSend +
+            motor2SpeedSign + motor2SpeedSend;
     }
 
     string GetUpperBodySendString()
     {
-        int armSpeed = armSpeedValue / 2; // arm part 1
-        int armSpeedPart2 = armSpeed; // arm part 2
+        int armSpeed = armSpeedValue / 3; // arm speed
         char armSpeedSign = 'P'; // arm sign
 
         if (armSpeed < 0)
         {
             armSpeed *= -1;
-            armSpeedPart2 *= -1;
             armSpeedSign = 'N';
         }
 
-        char armSpeedSend = (char)armSpeed; // arm part 1
-        char armSpeedPart2Send = (char)armSpeedPart2; // arm part 2
+        char armSpeedSend = (char)(armSpeed + firstSafeAsciiCharacter);
 
-        return "A" + armSpeedSign + armSpeedSend + armSpeedPart2Send;
+        return "A" + armSpeedSign + armSpeedSend;
     }
 
     string GetClawSendString()
     {
-        int clawSpeed = clawSpeedValue / 2; // arm part 1
-        int clawSpeedPart2 = clawSpeed; // arm part 2
+        int clawSpeed = clawSpeedValue / 3; // claw speed
         char clawSpeedSign = 'P'; // arm sign
 
         if (clawSpeed < 0)
         {
             clawSpeed *= -1;
-            clawSpeedPart2 *= -1;
             clawSpeedSign = 'N';
         }
 
-        char clawSpeedSend = (char)clawSpeed; // arm part 1
-        char clawSpeedPart2Send = (char)clawSpeedPart2; // arm part 2
+        char clawSpeedSend = (char)(clawSpeed + firstSafeAsciiCharacter);
 
-        return "C" + clawSpeedSign + clawSpeedSend + clawSpeedPart2Send;
+        return "C" + clawSpeedSign + clawSpeedSend;
     }
 
     int NormalizeValue(int value)
@@ -320,12 +353,6 @@ public class RobotTank : MonoBehaviour
         {
             value = -maximumSpeed;
         }
-
-        if (value % 2 != 0)
-        {
-            value -= 1;
-        }
-
         return value;
     }
 }

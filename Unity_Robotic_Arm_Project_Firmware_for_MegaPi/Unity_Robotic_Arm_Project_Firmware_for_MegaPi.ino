@@ -6,6 +6,8 @@ MeEncoderOnBoard Encoder_2(SLOT2);
 MeEncoderOnBoard Encoder_3(SLOT3);
 
 int data;
+const int firstSafeAsciiCharacter = 33;
+const int speedMultiplier = 3;
 
 void setup() 
 {
@@ -30,8 +32,8 @@ int awaitRead()
 
 int constrainToMaxAndMinSpeed(int speed)
 {
-  const int maximumSpeed = 186;
-  const int minimumSpeed = 100;
+  const int maximumSpeed = 255;
+  const int minimumSpeed = 0;
   
   if (speed > maximumSpeed)
   {
@@ -48,26 +50,9 @@ int constrainToMaxAndMinSpeed(int speed)
 int getMotorSpeed()
 {
   int motorSpeedSign = awaitRead(); // sign
-  int motorSpeed = awaitRead(); // part 1
-  int motorSpeedPart2 = awaitRead(); // part 2
-  motorSpeed = constrainToMaxAndMinSpeed(motorSpeed + motorSpeedPart2 + 50);
+  int motorSpeed = awaitRead(); //speed
+  motorSpeed = constrainToMaxAndMinSpeed((motorSpeed - firstSafeAsciiCharacter) * speedMultiplier);
   return motorSpeed * getSignByCharacter(motorSpeedSign);
-}
-
-void notMoveAction() 
-{
-  Encoder_1.setMotorPwm(0);
-  Encoder_2.setMotorPwm(0);
-}
-
-void notArmAction() 
-{
-  Encoder_3.setMotorPwm(0);
-}
-
-void notClawAction() 
-{
-  dc.run(0);
 }
 
 void moveAction()
@@ -93,25 +78,13 @@ void loop()
   if(data == 'M')
   {
     moveAction();
-  } 
-  else if (data == 'm')
-  {
-    notMoveAction();
   }
   else if (data == 'C')
   {
     clawAction();
   }
-  else if (data == 'c')
-  {
-    notClawAction();
-  }
   else if (data == 'A')
   {
     armAction();
-  }
-  else if (data == 'a')
-  {
-    notArmAction();
   }
 }
