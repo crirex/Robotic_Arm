@@ -51,17 +51,19 @@ public class RobotTank : MonoBehaviour
     private const float InwardsLeftClawZPosition = OutwardsZPosition - (OutwardsZPosition - InwardsRightClawZPosition);
     private const float maximumMotorObjectZPositionOffset = -0.01f;
     private const float maximumBackwardsUpperBodyRotation = -95.3f;
-    private const float maximumForwardsUpperBodyRotation = 0f;
+    private const float maximumForwardsUpperBodyRotation = 16f;
 
-    private const int maximumSpeed = 254;
-    private const int minimumSpeed = 100;
+    private const int maximumSpeed = 150; // This can be put all the way to 255 only but the tests are going to be for 150 as it's speed is adequate and it would be okay for simulations that the speed is the same.
+    private const int minimumSpeed = 150;
 
     private const int firstSafeAsciiCharacter = 33;
     private const int lastSafeAsciiCharacter = 126;
 
-    private const float rotationSpeedCorrector = 0.00164f;
-    private const float forwardSpeedCorrector = 0.0000085f;
-    private const float armSpeedCorrector = 0.00065f;
+    private const float rotationRightSpeedCorrector = 0.0095f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
+    private const float rotationLeftSpeedCorrector = 0.01f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
+    private const float forwardSpeedCorrector = 0.00002724f; // This value is sync
+    private const float armGoingDownSpeedCorrector = 0.0031f; // Because of gravity it moves up slower. //This value is sync
+    private const float armGoingUpSpeedCorrector = 0.0029f; // This value is sync
     private const float clawSpeedCorrector = 0.0014f;
 
     private const float maximumRadius = 1f;
@@ -88,9 +90,8 @@ public class RobotTank : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-
         rightHandTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
         leftHandTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger);
 
@@ -131,16 +132,45 @@ public class RobotTank : MonoBehaviour
             clawSpeedValue = 0;
         }
 
-        Debug.Log(""+forwardSpeedValue + " " + rotationSpeedValue + " " + armSpeedValue + " " + clawSpeedValue);
+        //Debug.Log(""+forwardSpeedValue + " " + rotationSpeedValue + " " + armSpeedValue + " " + clawSpeedValue);
 
         MoveLeftRight();
         MoveForwardBackwards();
         MoveUpperBody();
         CloseClawAfterButtonForce();
 
-        serial.Write(GetMovementSendString());
-        serial.Write(GetUpperBodySendString());
-        serial.Write(GetClawSendString());
+        //if (serial.IsOpen)
+        //{
+            // if (serial.BytesToRead > 7 && (char)serial.ReadByte() == 'D')
+            //{
+            //Debug.Log("X:" + readDouble());
+            //Debug.Log("Y:" + readDouble());
+            //Debug.Log("Z:" + readDouble());
+            //Debug.Log("gyroX:" + readDouble());
+            //Debug.Log("gyroY:" + readDouble());
+            //Debug.Log("Utrasonic:" + readDouble() + "cm");
+            //Debug.Log(serial.ReadByte());
+            //Debug.Log(serial.BytesToRead);
+            //}
+
+            serial.Write(GetMovementSendString());
+            serial.Write(GetUpperBodySendString());
+            serial.Write(GetClawSendString());
+        //}
+    }
+
+    double readDouble()
+    {
+        byte[] byteArray = new byte[8];
+        byteArray[0] = (byte)serial.ReadByte();
+        byteArray[1] = (byte)serial.ReadByte();
+        byteArray[2] = (byte)serial.ReadByte();
+        byteArray[3] = (byte)serial.ReadByte();
+        byteArray[4] = (byte)serial.ReadByte();
+        byteArray[5] = (byte)serial.ReadByte();
+        byteArray[6] = (byte)serial.ReadByte();
+        byteArray[7] = (byte)serial.ReadByte();
+        return BitConverter.ToDouble(byteArray, 0);
     }
 
     bool IsNotTurned()
@@ -158,8 +188,16 @@ public class RobotTank : MonoBehaviour
         if (IsNotTurned())
         {
             var wholeBodyAngles = rotationBody.transform.localRotation.eulerAngles;
-            float rotateToValue = wholeBodyAngles.z - rotationSpeedCorrector * rotationSpeedValue;
-            Debug.Log(rotationSpeedCorrector * rotationSpeedValue);
+            float rotateToValue = 0;
+            if (rotationSpeedValue > 0)
+            {
+                rotateToValue = wholeBodyAngles.z - rotationRightSpeedCorrector * rotationSpeedValue;
+            }
+            else
+            {
+                rotateToValue = wholeBodyAngles.z - rotationLeftSpeedCorrector * rotationSpeedValue;
+            }
+            //Debug.Log(rotationRightSpeedCorrector * rotationSpeedValue);
             rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
         }
     }
@@ -170,7 +208,7 @@ public class RobotTank : MonoBehaviour
         {
             var wholeBodyPosition = movementBody.transform.localPosition;
             float moveToValue = wholeBodyPosition.y + forwardSpeedCorrector * forwardSpeedValue;
-            Debug.Log(forwardSpeedCorrector * forwardSpeedValue);
+            //Debug.Log(forwardSpeedCorrector * forwardSpeedValue);
             movementBody.transform.localPosition = new Vector3(wholeBodyPosition.x, moveToValue, wholeBodyPosition.z);
             this.transform.position = movementBody.transform.position;
             movementBody.transform.localPosition = new Vector3(0, 0, 0);
@@ -209,7 +247,7 @@ public class RobotTank : MonoBehaviour
     void MoveUpperBody()
     {
         var upperBodyAngles = upperBodyBelow.transform.localRotation.eulerAngles;
-        Debug.Log(GetValueInBordersForUpperBody());
+        //Debug.Log(GetValueInBordersForUpperBody());
         upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, GetValueInBordersForUpperBody());
         upperBodyAbove.transform.localRotation = upperBodyBelow.transform.localRotation;
         clawSupport.transform.eulerAngles = new Vector3(270, clawSupport.transform.eulerAngles.y, clawSupport.transform.eulerAngles.z);
@@ -217,7 +255,16 @@ public class RobotTank : MonoBehaviour
 
     float GetValueInBordersForUpperBody()
     {
-        float rotateToValue = lastUpperBodyRotationZ + armSpeedCorrector * armSpeedValue;
+        float rotateToValue = lastUpperBodyRotationZ;
+
+        if (armSpeedValue > 0)
+        {
+            rotateToValue += armGoingDownSpeedCorrector * armSpeedValue;
+        }
+        else if (armSpeedValue < 0)
+        {
+            rotateToValue += armGoingUpSpeedCorrector * armSpeedValue;
+        }
         if (maximumBackwardsUpperBodyRotation < rotateToValue && rotateToValue < maximumForwardsUpperBodyRotation)
         {
             lastUpperBodyRotationZ = rotateToValue;
