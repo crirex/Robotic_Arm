@@ -1,3 +1,5 @@
+#include <TimedAction.h>
+
 #include <MeMegaPi.h>
 #include <Wire.h>
 
@@ -5,22 +7,18 @@ MeMegaPiDCMotor dc;
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
 MeEncoderOnBoard Encoder_3(SLOT3);
-//MeGyro gyro(PORT_7);
-//MeUltrasonicSensor us(PORT_8);
+MeGyro gyro(PORT_7);
+MeUltrasonicSensor us(PORT_8);
 
 int data;
+const char syncChar = (char)255;
 const int firstSafeAsciiCharacter = 33;
 const int speedMultiplier = 3;
 
-//typedef union {
-// float floatPoint;
-// byte binary[4];
-//} binaryFloat;
-
-//typedef union {
-//  double doublePoint;
-//  byte binary[8];
-//} binaryDouble;
+typedef union {
+ float floatPoint;
+ byte binary[4];
+} binaryFloat;
 
 int getSignByCharacter(int character)
 {
@@ -37,40 +35,20 @@ int awaitRead()
   return Serial.read(); 
 }
 
-//void writeData(binaryDouble value)
-//{
-//  Serial.write('D');
-//  Serial.write(value.binary[7]);
-//  Serial.write(value.binary[6]);
-//  Serial.write(value.binary[5]);
-//  Serial.write(value.binary[4]);
-//  Serial.write(value.binary[3]);
-//  Serial.write(value.binary[2]);
-//  Serial.write(value.binary[1]);
-//  Serial.write(value.binary[0]);
-//}
+void writeData(binaryFloat value)
+{
+  Serial.write(value.binary[0]);
+  Serial.write(value.binary[1]);
+  Serial.write(value.binary[2]);
+  Serial.write(value.binary[3]);
+}
 
-//void writeData(double value)
-//{
-//  binaryDouble biValue;
-//  biValue.doublePoint = value;
-//  writeData(biValue);
-//}
-
-//void writeData(binaryFloat value)
-//{
-//  Serial.write(value.binary[3]);
-//  Serial.write(value.binary[2]);
-//  Serial.write(value.binary[1]);
-//  Serial.write(value.binary[0]);
-//}
-
-//void writeData(float value)
-//{
-//  binaryFloat flValue;
-//  flValue.floatPoint = value;
-//  writeData(flValue);
-//}
+void writeData(float value)
+{
+  binaryFloat flValue;
+  flValue.floatPoint = value;
+  writeData(flValue);
+}
 
 int constrainToMaxAndMinSpeed(int speed)
 {
@@ -119,50 +97,71 @@ void armAction()
   Encoder_3.setMotorPwm(getMotorSpeed());// Arm
 }
 
-//void sendGyroData()
-//{
-//  gyro.update();
-//  writeData(gyro.getAngleX());
-//  writeData(gyro.getAngleY());
-//  writeData(gyro.getAngleZ());
-//  writeData(gyro.getGyroX());
-//  writeData(gyro.getGyroY());
-//}
+void sendGyroData()
+{
+  //writeData((float)gyro.getAngleX());
+  //writeData((float)gyro.getAngleY());
+  writeData((float)gyro.getAngleZ());
+  //writeData((float)gyro.getGyroX());
+  //writeData((float)gyro.getGyroY());
+}
 
-//void sendUltrasonicSensorData() 
-//{
-//  //writeData(us.distanceCm());
-//  //writeData((double)us.measure() / 58.0);
-//  writeData((double)54.28);
-//}
+void sendUltrasonicSensorData() 
+{
+  float distance = 0;
+  long timeInterval = 0;
+  timeInterval = us.measure();
+  if(timeInterval == 0)
+  {
+    writeData(500.0f);
+  }
+  //distance = us.distanceCm();
+  distance = (float)timeInterval / 58.0f;
+  if(distance > 500.0f)
+  {
+    distance = 500.0f;
+  }
+  writeData(distance);
+}
 
 void setup() 
 {
   Serial.begin(115200);
   dc.reset(PORT4B);
-  //gyro.begin();
+  gyro.begin();
 }
+
+void sendDataPart()
+{
+  Serial.write(syncChar);
+  sendGyroData();
+  sendUltrasonicSensorData();
+}
+
+void readMovementInfo()
+{
+  data = awaitRead();
+  if(data == 'M')
+  {
+    moveAction();
+  }
+  else if (data == 'C')
+  {
+    clawAction();
+  }
+  else if (data == 'A')
+  {
+    armAction();
+  }
+}
+
+TimedAction sendThread = TimedAction(20,sendDataPart);
+//TimedAction readThread = TimedAction(300,readMovementInfo);
 
 // m - don't use movement; M - move; A - arm(up/down movement); a - don't use arm; C - claw; c - don't use claw; N - Negative
 void loop() 
 {
-  //sendGyroData();
-  //Serial.write('A');
-  //if(Serial.available() == 0)
-  //{
-    data = awaitRead();
-    if(data == 'M')
-    {
-      moveAction();
-    }
-    else if (data == 'C')
-    {
-      clawAction();
-    }
-    else if (data == 'A')
-    {
-      armAction();
-    }
-    //sendUltrasonicSensorData();
-  //}
+  gyro.update();
+  readMovementInfo();
+  sendThread.check();
 }

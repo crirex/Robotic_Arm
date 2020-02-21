@@ -181,7 +181,7 @@ Transform:
   m_LocalScale: {x: 2.5, y: 0.8, z: 1.3872}
   m_Children: []
   m_Father: {fileID: 1679389524}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &73589889
 MeshRenderer:
@@ -1659,11 +1659,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408090439}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0216, y: 0.909, z: 0.26600003}
+  m_LocalPosition: {x: -0.113, y: 0.909, z: -0.22600001}
   m_LocalScale: {x: 0.05, y: 0.2, z: 0.05}
   m_Children: []
   m_Father: {fileID: 1679389524}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &408090443
 Rigidbody:
@@ -1679,7 +1679,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 2
 --- !u!23 &408090447
 MeshRenderer:
@@ -3067,7 +3067,7 @@ Transform:
   m_Children:
   - {fileID: 701906270}
   m_Father: {fileID: 1679389524}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 86.79, y: -0.000015258789, z: -0.000015258789}
 --- !u!23 &750496455
 MeshRenderer:
@@ -3135,6 +3135,7 @@ MonoBehaviour:
   movementBody: {fileID: 781862434}
   rotationBody: {fileID: 701906269}
   motorObject: {fileID: 1647106003}
+  grabObject: {fileID: 408090439}
 --- !u!54 &750496458
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7996,12 +7997,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1679389523}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.75}
+  m_LocalPosition: {x: 0, y: 0, z: 1.11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 73589888}
   - {fileID: 408090440}
   - {fileID: 750496454}
+  - {fileID: 73589888}
   m_Father: {fileID: 1375112423}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

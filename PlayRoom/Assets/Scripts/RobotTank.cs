@@ -24,6 +24,8 @@ public class RobotTank : MonoBehaviour
     private GameObject rotationBody;
     [SerializeField]
     private GameObject motorObject;
+    [SerializeField]
+    private GameObject grabObject;
 
     public static bool hasObject = false;
 
@@ -66,12 +68,17 @@ public class RobotTank : MonoBehaviour
     private const float armGoingUpSpeedCorrector = 0.0029f; // This value is sync
     private const float clawSpeedCorrector = 0.0014f;
 
+    private const float deadZone = 0.2f;
+    private const float oneCM = 0.01917f;
     private const float maximumRadius = 1f;
 
     int forwardSpeedValue = 0;
     int rotationSpeedValue = 0;
     int armSpeedValue = 0;
     int clawSpeedValue = 0;
+
+    float gyroRotation = 0;
+    float utrasonicDistance = 0;
 
     private float firstMotorObjectZPosition;
     private float lastUpperBodyRotationZ;
@@ -114,7 +121,7 @@ public class RobotTank : MonoBehaviour
         rotationSpeedValue = NormalizeValue((int)rotationAndForwardValue.x);
         forwardSpeedValue = NormalizeValue((int)rotationAndForwardValue.y);
 
-        if (Math.Abs(rightThumbstickUpDown) > 0.2)
+        if (Math.Abs(rightThumbstickUpDown) > deadZone)
         {
             armSpeedValue = NormalizeValue((int)(-rightThumbstickUpDown * maximumSpeed));
         }
@@ -123,7 +130,7 @@ public class RobotTank : MonoBehaviour
             armSpeedValue = 0;
         }
 
-        if ((Math.Abs(rightHandTrigger) > 0.1 || Math.Abs(leftHandTrigger) > 0.1))
+        if ((Math.Abs(rightHandTrigger) > deadZone || Math.Abs(leftHandTrigger) > deadZone))
         {
             clawSpeedValue = NormalizeValue((int)((rightHandTrigger - leftHandTrigger) * maximumSpeed));
         }
@@ -138,39 +145,41 @@ public class RobotTank : MonoBehaviour
         MoveForwardBackwards();
         MoveUpperBody();
         CloseClawAfterButtonForce();
+        MoveGrabableObject();
 
-        //if (serial.IsOpen)
-        //{
-            // if (serial.BytesToRead > 7 && (char)serial.ReadByte() == 'D')
-            //{
-            //Debug.Log("X:" + readDouble());
-            //Debug.Log("Y:" + readDouble());
-            //Debug.Log("Z:" + readDouble());
-            //Debug.Log("gyroX:" + readDouble());
-            //Debug.Log("gyroY:" + readDouble());
-            //Debug.Log("Utrasonic:" + readDouble() + "cm");
-            //Debug.Log(serial.ReadByte());
-            //Debug.Log(serial.BytesToRead);
-            //}
-
+        if (serial.IsOpen)
+        {
             serial.Write(GetMovementSendString());
             serial.Write(GetUpperBodySendString());
             serial.Write(GetClawSendString());
-        //}
+
+            if (serial.BytesToRead > 2*4 - 1 && (int)serial.ReadByte() == 255)
+            {
+                //Debug.Log("X:" + readFloat());
+                //Debug.Log("Y:" + readFloat());
+                gyroRotation = readFloat();
+                Debug.Log("Z:" + gyroRotation);
+                //Debug.Log("gyroX:" + readFloat());
+                //Debug.Log("gyroY:" + readFloat());
+                utrasonicDistance = readFloat();
+                Debug.Log("Utrasonic:" + utrasonicDistance + "cm");
+                Debug.Log(serial.BytesToRead);
+            }
+        }
+        else
+        {
+            serial.Open();
+        }
     }
 
-    double readDouble()
+    float readFloat()
     {
-        byte[] byteArray = new byte[8];
+        byte[] byteArray = new byte[4];
         byteArray[0] = (byte)serial.ReadByte();
         byteArray[1] = (byte)serial.ReadByte();
         byteArray[2] = (byte)serial.ReadByte();
         byteArray[3] = (byte)serial.ReadByte();
-        byteArray[4] = (byte)serial.ReadByte();
-        byteArray[5] = (byte)serial.ReadByte();
-        byteArray[6] = (byte)serial.ReadByte();
-        byteArray[7] = (byte)serial.ReadByte();
-        return BitConverter.ToDouble(byteArray, 0);
+        return BitConverter.ToSingle(byteArray, 0);
     }
 
     bool IsNotTurned()
@@ -181,6 +190,15 @@ public class RobotTank : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    void MoveGrabableObject()
+    {
+        if (utrasonicDistance < 500)
+        {
+            Transform tankTransform = gameObject.GetComponent<Transform>();
+            grabObject.transform.position = new Vector3(tankTransform.transform.position.x, grabObject.transform.position.y, tankTransform.transform.position.z + utrasonicDistance * oneCM + 0.162f);
+        }
     }
 
     void MoveLeftRight()
@@ -198,7 +216,11 @@ public class RobotTank : MonoBehaviour
                 rotateToValue = wholeBodyAngles.z - rotationLeftSpeedCorrector * rotationSpeedValue;
             }
             //Debug.Log(rotationRightSpeedCorrector * rotationSpeedValue);
-            rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
+            if (!serial.IsOpen)
+            {
+                rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
+            }
+            rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, gyroRotation);
         }
     }
 
@@ -247,7 +269,6 @@ public class RobotTank : MonoBehaviour
     void MoveUpperBody()
     {
         var upperBodyAngles = upperBodyBelow.transform.localRotation.eulerAngles;
-        //Debug.Log(GetValueInBordersForUpperBody());
         upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, GetValueInBordersForUpperBody());
         upperBodyAbove.transform.localRotation = upperBodyBelow.transform.localRotation;
         clawSupport.transform.eulerAngles = new Vector3(270, clawSupport.transform.eulerAngles.y, clawSupport.transform.eulerAngles.z);
@@ -308,9 +329,15 @@ public class RobotTank : MonoBehaviour
         //if (arithmeticMedian != 0)
         {
             //xNomalized = leftThumbstickLeftRight / arithmeticMedian;
-            xNomalized = leftThumbstickLeftRight;
+            if (Math.Abs(leftThumbstickLeftRight) > deadZone)
+            {
+                xNomalized = leftThumbstickLeftRight;
+            }
             //yNomalized = leftThumbstickUpDown / arithmeticMedian;
-            yNomalized = rightIndexTrigger-leftIndexTrigger;
+            if (Math.Abs(rightIndexTrigger) > deadZone || Math.Abs(leftIndexTrigger) > deadZone)
+            {
+                yNomalized = rightIndexTrigger - leftIndexTrigger;
+            }
         }
 
         float speedValue = NormalizeValue((int)(maximumSpeed * speedMultiplyer));
@@ -366,7 +393,7 @@ public class RobotTank : MonoBehaviour
     string GetClawSendString()
     {
         int clawSpeed = clawSpeedValue / 3; // claw speed
-        char clawSpeedSign = 'P'; // arm sign
+        char clawSpeedSign = 'P'; // claw sign
 
         if (clawSpeed < 0)
         {
