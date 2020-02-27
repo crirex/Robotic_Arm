@@ -1,0 +1,339 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_IN_PAGE_ERROR (0xc0000006) at pc=0x66c2fab0, pid=17524, tid=0x00000808
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_191-b12) (build 1.8.0_191-b12)
+# Java VM: Java HotSpot(TM) Client VM (25.191-b12 mixed mode windows-x86 )
+# Problematic frame:
+# V  [jvm.dll+0x24fab0]
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x28641c00):  JavaThread "AWT-EventQueue-0" [_thread_in_vm, id=2056, stack(0x28000000,0x28050000)]
+
+siginfo: ExceptionCode=0xc0000006, ExceptionInformation=0x00000008 0x66c2fab0 0xc000026e 
+
+Registers:
+EAX=0x00000000, EBX=0x00000000, ECX=0x00a95000, EDX=0x00000023
+ESP=0x2804e524, EBP=0x2804e560, ESI=0x28641c00, EDI=0x28641c00
+EIP=0x66c2fab0, EFLAGS=0x00010246
+
+Top of Stack: (sp=0x2804e524)
+0x2804e524:   66b4376e 66b3b975 28641c00 260d6798
+0x2804e534:   260d6798 260d6700 2804e52c 00000000
+0x2804e544:   00000000 00000000 00000000 fffffffe
+0x2804e554:   2804e564 669e73f4 28641c00 2804e580
+0x2804e564:   66ae2c72 28641c00 28641c00 00000006
+0x2804e574:   28641c00 260d6798 260d6798 2804e5c8
+0x2804e584:   6c2650a8 00000000 03c1daf1 28641d40
+0x2804e594:   2804e5d0 00000000 2a778998 260d6798 
+
+Instructions: (pc=0x66c2fab0)
+0x66c2fa90:   
+[error occurred during error reporting (printing registers, top of stack, instructions near pc), id 0xc0000006]
+
+Register to memory mapping:
+
+EAX=0x00000000 is an unknown value
+EBX=0x00000000 is an unknown value
+ECX=0x00a95000 is an unknown value
+EDX=0x00000023 is an unknown value
+ESP=0x2804e524 is pointing into the stack for thread: 0x28641c00
+EBP=0x2804e560 is pointing into the stack for thread: 0x28641c00
+ESI=0x28641c00 is a thread
+EDI=0x28641c00 is a thread
+
+
+Stack: [0x28000000,0x28050000],  sp=0x2804e524,  free space=313k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x24fab0]
+V  [jvm.dll+0x102c72]
+C  [java.dll+0x50a8]
+j  java.lang.Shutdown.halt(I)V+7
+j  java.lang.Shutdown.exit(I)V+99
+j  java.lang.Runtime.exit(I)V+14
+j  java.lang.System.exit(I)V+4
+j  processing.app.Base.handleQuit()Z+81
+j  processing.app.Base.handleClose(Lprocessing/app/Editor;)Z+14
+j  processing.app.Editor$1.windowClosing(Ljava/awt/event/WindowEvent;)V+11
+j  java.awt.AWTEventMulticaster.windowClosing(Ljava/awt/event/WindowEvent;)V+8
+j  java.awt.AWTEventMulticaster.windowClosing(Ljava/awt/event/WindowEvent;)V+8
+j  java.awt.Window.processWindowEvent(Ljava/awt/event/WindowEvent;)V+68
+j  javax.swing.JFrame.processWindowEvent(Ljava/awt/event/WindowEvent;)V+2
+j  java.awt.Window.processEvent(Ljava/awt/AWTEvent;)V+69
+j  java.awt.Component.dispatchEventImpl(Ljava/awt/AWTEvent;)V+589
+j  java.awt.Container.dispatchEventImpl(Ljava/awt/AWTEvent;)V+42
+j  java.awt.Window.dispatchEventImpl(Ljava/awt/AWTEvent;)V+19
+j  java.awt.Component.dispatchEvent(Ljava/awt/AWTEvent;)V+2
+j  java.awt.EventQueue.dispatchEventImpl(Ljava/awt/AWTEvent;Ljava/lang/Object;)V+41
+j  java.awt.EventQueue.access$500(Ljava/awt/EventQueue;Ljava/awt/AWTEvent;Ljava/lang/Object;)V+3
+j  java.awt.EventQueue$3.run()Ljava/lang/Void;+32
+j  java.awt.EventQueue$3.run()Ljava/lang/Object;+1
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0x15c315]
+V  [jvm.dll+0x223ece]
+V  [jvm.dll+0x15c3ae]
+V  [jvm.dll+0x10c35f]
+C  [java.dll+0x102f]
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;Ljava/security/AccessControlContext;)Ljava/lang/Object;+18
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;+6
+j  java.awt.EventQueue$4.run()Ljava/lang/Void;+11
+j  java.awt.EventQueue$4.run()Ljava/lang/Object;+1
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0x15c315]
+V  [jvm.dll+0x223ece]
+V  [jvm.dll+0x15c3ae]
+V  [jvm.dll+0x10c35f]
+C  [java.dll+0x102f]
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;Ljava/security/AccessControlContext;)Ljava/lang/Object;+18
+j  java.awt.EventQueue.dispatchEvent(Ljava/awt/AWTEvent;)V+73
+j  java.awt.EventDispatchThread.pumpOneEventForFilters(I)V+140
+j  java.awt.EventDispatchThread.pumpEventsForFilter(ILjava/awt/Conditional;Ljava/awt/EventFilter;)V+35
+j  java.awt.EventDispatchThread.pumpEventsForHierarchy(ILjava/awt/Conditional;Ljava/awt/Component;)V+11
+j  java.awt.EventDispatchThread.pumpEvents(ILjava/awt/Conditional;)V+4
+j  java.awt.EventDispatchThread.pumpEvents(Ljava/awt/Conditional;)V+3
+j  java.awt.EventDispatchThread.run()V+9
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0x15c315]
+V  [jvm.dll+0x223ece]
+V  [jvm.dll+0x15c3ae]
+V  [jvm.dll+0x15c536]
+V  [jvm.dll+0x15c5a7]
+V  [jvm.dll+0x1002ef]
+V  [jvm.dll+0x17f550]
+V  [jvm.dll+0x17fdca]
+V  [jvm.dll+0x1c57a6]
+C  [msvcr100.dll+0x5c556]
+C  [msvcr100.dll+0x5c600]
+C  [KERNEL32.DLL+0x16359]
+C  [ntdll.dll+0x67b74]
+C  [ntdll.dll+0x67b44]
+C  0x00000000
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  java.lang.Shutdown.halt0(I)V+0
+j  java.lang.Shutdown.halt(I)V+7
+j  java.lang.Shutdown.exit(I)V+99
+j  java.lang.Runtime.exit(I)V+14
+j  java.lang.System.exit(I)V+4
+j  processing.app.Base.handleQuit()Z+81
+j  processing.app.Base.handleClose(Lprocessing/app/Editor;)Z+14
+j  processing.app.Editor$1.windowClosing(Ljava/awt/event/WindowEvent;)V+11
+j  java.awt.AWTEventMulticaster.windowClosing(Ljava/awt/event/WindowEvent;)V+8
+j  java.awt.AWTEventMulticaster.windowClosing(Ljava/awt/event/WindowEvent;)V+8
+j  java.awt.Window.processWindowEvent(Ljava/awt/event/WindowEvent;)V+68
+j  javax.swing.JFrame.processWindowEvent(Ljava/awt/event/WindowEvent;)V+2
+j  java.awt.Window.processEvent(Ljava/awt/AWTEvent;)V+69
+j  java.awt.Component.dispatchEventImpl(Ljava/awt/AWTEvent;)V+589
+j  java.awt.Container.dispatchEventImpl(Ljava/awt/AWTEvent;)V+42
+j  java.awt.Window.dispatchEventImpl(Ljava/awt/AWTEvent;)V+19
+j  java.awt.Component.dispatchEvent(Ljava/awt/AWTEvent;)V+2
+j  java.awt.EventQueue.dispatchEventImpl(Ljava/awt/AWTEvent;Ljava/lang/Object;)V+41
+j  java.awt.EventQueue.access$500(Ljava/awt/EventQueue;Ljava/awt/AWTEvent;Ljava/lang/Object;)V+3
+j  java.awt.EventQueue$3.run()Ljava/lang/Void;+32
+j  java.awt.EventQueue$3.run()Ljava/lang/Object;+1
+v  ~StubRoutines::call_stub
+J 1921  java.security.AccessController.doPrivileged(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object; (0 bytes) @ 0x03f73107 [0x03f730a0+0x67]
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;Ljava/security/AccessControlContext;)Ljava/lang/Object;+18
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;+6
+j  java.awt.EventQueue$4.run()Ljava/lang/Void;+11
+j  java.awt.EventQueue$4.run()Ljava/lang/Object;+1
+v  ~StubRoutines::call_stub
+J 1921  java.security.AccessController.doPrivileged(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object; (0 bytes) @ 0x03f73107 [0x03f730a0+0x67]
+j  java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;Ljava/security/AccessControlContext;)Ljava/lang/Object;+18
+j  java.awt.EventQueue.dispatchEvent(Ljava/awt/AWTEvent;)V+73
+j  java.awt.EventDispatchThread.pumpOneEventForFilters(I)V+140
+j  java.awt.EventDispatchThread.pumpEventsForFilter(ILjava/awt/Conditional;Ljava/awt/EventFilter;)V+35
+j  java.awt.EventDispatchThread.pumpEventsForHierarchy(ILjava/awt/Conditional;Ljava/awt/Component;)V+11
+j  java.awt.EventDispatchThread.pumpEvents(ILjava/awt/Conditional;)V+4
+j  java.awt.EventDispatchThread.pumpEvents(Ljava/awt/Conditional;)V+3
+j  java.awt.EventDispatchThread.run()V+9
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x28640800 JavaThread "DestroyJavaVM" [_thread_blocked, id=15624, stack(0x02bd0000,0x02c20000)]
+  0x28641400 JavaThread "Timer-0" [_thread_blocked, id=14860, stack(0x02b30000,0x02b80000)]
+  0x28642000 JavaThread "TimerQueue" daemon [_thread_blocked, id=6784, stack(0x2a7e0000,0x2a830000)]
+=>0x28641c00 JavaThread "AWT-EventQueue-0" [_thread_in_vm, id=2056, stack(0x28000000,0x28050000)]
+  0x28643400 JavaThread "AWT-Shutdown" [_thread_blocked, id=15596, stack(0x27c50000,0x27ca0000)]
+  0x28642800 JavaThread "Batik CleanerThread" daemon [_thread_blocked, id=14652, stack(0x27830000,0x27880000)]
+  0x28614800 JavaThread "JmmDNS pool-3-thread-1" [_thread_blocked, id=13136, stack(0x29580000,0x295d0000)]
+  0x28614000 JavaThread "JmDNS(DESKTOP-PHPQ1SE.local.).State.Timer" [_thread_blocked, id=13156, stack(0x294f0000,0x29540000)]
+  0x28613c00 JavaThread "JmDNS(DESKTOP-PHPQ1SE.local.).Timer" daemon [_thread_blocked, id=14292, stack(0x29460000,0x294b0000)]
+  0x28613400 JavaThread "SocketListener(DESKTOP-PHPQ1SE.local.)" daemon [_thread_in_native, id=7124, stack(0x293d0000,0x29420000)]
+  0x26bb7c00 JavaThread "Multihomed mDNS.Timer" daemon [_thread_blocked, id=14864, stack(0x272c0000,0x27310000)]
+  0x26e93000 JavaThread "Java2D Disposer" daemon [_thread_blocked, id=5528, stack(0x27230000,0x27280000)]
+  0x26462400 JavaThread "Service Thread" daemon [_thread_blocked, id=3992, stack(0x26ad0000,0x26b20000)]
+  0x2646f400 JavaThread "C1 CompilerThread0" daemon [_thread_blocked, id=7888, stack(0x26a40000,0x26a90000)]
+  0x2646c800 JavaThread "Attach Listener" daemon [_thread_blocked, id=15076, stack(0x269b0000,0x26a00000)]
+  0x2646a000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=12760, stack(0x26920000,0x26970000)]
+  0x2644b400 JavaThread "Finalizer" daemon [_thread_blocked, id=1276, stack(0x26790000,0x267e0000)]
+  0x26445800 JavaThread "Reference Handler" daemon [_thread_blocked, id=12612, stack(0x26700000,0x26750000)]
+
+Other Threads:
+  0x26430800 VMThread [stack: 0x26670000,0x266c0000] [id=15640]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ def new generation   total 39424K, used 6189K [0x05e00000, 0x088c0000, 0x108a0000)
+  eden space 35072K,   5% used [0x05e00000, 0x05fcb568, 0x08040000)
+  from space 4352K, 100% used [0x08480000, 0x088c0000, 0x088c0000)
+  to   space 4352K,   0% used [0x08040000, 0x08040000, 0x08480000)
+ tenured generation   total 87424K, used 45585K [0x108a0000, 0x15e00000, 0x25e00000)
+   the space 87424K,  52% used [0x108a0000, 0x135245e0, 0x13524600, 0x15e00000)
+ Metaspace       used 23164K, capacity 23763K, committed 23808K, reserved 23936K
+
+Card table byte_map: [0x05c90000,0x05da0000] byte_map_base: 0x05c61000
+
+Polling page: 0x02a10000
+
+CodeCache: size=32768Kb used=3528Kb max_used=3528Kb free=29239Kb
+ bounds [0x03c10000, 0x03f88000, 0x05c10000]
+ total_blobs=2227 nmethods=1940 adapters=215
+ compilation: enabled
+
+Compilation events (10 events):
+
+[error occurred during error reporting (printing ring buffers), id 0xc0000006]
+
+Dynamic libraries:
+0x00140000 - 0x00173000 	D:\Apps\Arduino IDE\java\bin\javaw.exe
+0x777c0000 - 0x7795a000 	C:\Windows\SYSTEM32\ntdll.dll
+0x76b80000 - 0x76c60000 	C:\Windows\System32\KERNEL32.DLL
+0x75640000 - 0x7583d000 	C:\Windows\System32\KERNELBASE.dll
+0x76290000 - 0x76309000 	C:\Windows\System32\ADVAPI32.dll
+0x76d60000 - 0x76e1f000 	C:\Windows\System32\msvcrt.dll
+0x76450000 - 0x764c6000 	C:\Windows\System32\sechost.dll
+0x74fb0000 - 0x7506b000 	C:\Windows\System32\RPCRT4.dll
+0x74f90000 - 0x74fb0000 	C:\Windows\System32\SspiCli.dll
+0x74f80000 - 0x74f8a000 	C:\Windows\System32\CRYPTBASE.dll
+0x76e20000 - 0x76e7f000 	C:\Windows\System32\bcryptPrimitives.dll
+0x76ee0000 - 0x77077000 	C:\Windows\System32\USER32.dll
+0x76a50000 - 0x76a67000 	C:\Windows\System32\win32u.dll
+0x771a0000 - 0x771c1000 	C:\Windows\System32\GDI32.dll
+0x76130000 - 0x7628a000 	C:\Windows\System32\gdi32full.dll
+0x76ce0000 - 0x76d5c000 	C:\Windows\System32\msvcp_win.dll
+0x775e0000 - 0x776ff000 	C:\Windows\System32\ucrtbase.dll
+0x6c6b0000 - 0x6c8bf000 	C:\Windows\WinSxS\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.18362.657_none_2e72ec50278a619e\COMCTL32.dll
+0x75960000 - 0x75bd5000 	C:\Windows\System32\combase.dll
+0x76c60000 - 0x76c85000 	C:\Windows\System32\IMM32.DLL
+0x6c290000 - 0x6c34f000 	D:\Apps\Arduino IDE\java\bin\msvcr100.dll
+0x669e0000 - 0x66db3000 	D:\Apps\Arduino IDE\java\bin\client\jvm.dll
+0x76110000 - 0x76116000 	C:\Windows\System32\PSAPI.DLL
+0x6c6a0000 - 0x6c6a8000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x74ed0000 - 0x74ef4000 	C:\Windows\SYSTEM32\WINMM.dll
+0x74a00000 - 0x74a08000 	C:\Windows\SYSTEM32\VERSION.dll
+0x771e0000 - 0x7723e000 	C:\Windows\System32\WS2_32.dll
+0x74ea0000 - 0x74ec3000 	C:\Windows\SYSTEM32\winmmbase.dll
+0x77310000 - 0x7734b000 	C:\Windows\System32\cfgmgr32.dll
+0x6c670000 - 0x6c6a0000 	D:\Apps\Arduino IDE\java\bin\splashscreen.dll
+0x6f640000 - 0x6f6ba000 	C:\Windows\system32\uxtheme.dll
+0x75840000 - 0x75943000 	C:\Windows\System32\MSCTF.dll
+0x77260000 - 0x772f2000 	C:\Windows\System32\OLEAUT32.dll
+0x68080000 - 0x68148000 	C:\ProgramData\A-Volute\A-Volute.28054DF1F58B4\Modules\ScheduledModules\A-Volute.SonicRadar3DevProps2.dll
+0x774c0000 - 0x775b7000 	C:\Windows\System32\ole32.dll
+0x764d0000 - 0x76a4a000 	C:\Windows\System32\SHELL32.dll
+0x77700000 - 0x77784000 	C:\Windows\System32\shcore.dll
+0x75070000 - 0x75635000 	C:\Windows\System32\windows.storage.dll
+0x775c0000 - 0x775d7000 	C:\Windows\System32\profapi.dll
+0x76ac0000 - 0x76b03000 	C:\Windows\System32\powrprof.dll
+0x771d0000 - 0x771dd000 	C:\Windows\System32\UMPDC.dll
+0x76c90000 - 0x76cd4000 	C:\Windows\System32\shlwapi.dll
+0x76120000 - 0x7612f000 	C:\Windows\System32\kernel.appcore.dll
+0x77790000 - 0x777a3000 	C:\Windows\System32\cryptsp.dll
+0x681e0000 - 0x6826f000 	C:\ProgramData\A-Volute\A-Volute.28054DF1F58B4\Modules\ScheduledModules\NahimicOSD.dll
+0x68720000 - 0x6873b000 	C:\ProgramData\A-Volute\A-Volute.28054DF1F58B4\Modules\ScheduledModules\ProductInfo.dll
+0x6c660000 - 0x6c66c000 	D:\Apps\Arduino IDE\java\bin\verify.dll
+0x6c260000 - 0x6c282000 	D:\Apps\Arduino IDE\java\bin\java.dll
+0x68500000 - 0x685c8000 	C:\ProgramData\A-Volute\A-Volute.SonicStudio3\Modules\ScheduledModules\A-Volute.SonicStudio3DevProps2.dll
+0x6c240000 - 0x6c254000 	D:\Apps\Arduino IDE\java\bin\zip.dll
+0x68150000 - 0x681d4000 	C:\Windows\System32\TextInputFramework.dll
+0x62a60000 - 0x62cbe000 	C:\Windows\System32\CoreUIComponents.dll
+0x62cc0000 - 0x62d49000 	C:\Windows\System32\CoreMessaging.dll
+0x70c80000 - 0x70ca9000 	C:\Windows\SYSTEM32\ntmarta.dll
+0x64dc0000 - 0x64e9a000 	C:\Windows\SYSTEM32\wintypes.dll
+0x64ef0000 - 0x65119000 	C:\Windows\System32\iertutil.dll
+0x67fb0000 - 0x68003000 	C:\Windows\system32\Oleacc.dll
+0x75be0000 - 0x75c60000 	C:\Windows\System32\clbcatq.dll
+0x61940000 - 0x619b3000 	D:\Apps\Arduino IDE\lib\listSerialsj.dll
+0x75cc0000 - 0x76109000 	C:\Windows\System32\SETUPAPI.dll
+0x77080000 - 0x77099000 	C:\Windows\System32\bcrypt.dll
+0x6c220000 - 0x6c23d000 	D:\Apps\Arduino IDE\lib\jnidispatch-4.2.2-win32-x86.dll
+0x6c200000 - 0x6c215000 	D:\Apps\Arduino IDE\java\bin\net.dll
+0x73df0000 - 0x73e42000 	C:\Windows\system32\mswsock.dll
+0x6c650000 - 0x6c65f000 	D:\Apps\Arduino IDE\java\bin\nio.dll
+0x66890000 - 0x669d7000 	D:\Apps\Arduino IDE\java\bin\awt.dll
+0x6faa0000 - 0x6fb3f000 	C:\Windows\SYSTEM32\apphelp.dll
+0x69490000 - 0x694b5000 	C:\Windows\system32\DWMAPI.DLL
+0x6c1c0000 - 0x6c1f9000 	D:\Apps\Arduino IDE\java\bin\fontmanager.dll
+0x6c0c0000 - 0x6c1bf000 	C:\Windows\system32\opengl32.dll
+0x69760000 - 0x6979f000 	C:\Windows\SYSTEM32\GLU32.dll
+0x6bce0000 - 0x6bcf9000 	C:\Windows\SYSTEM32\dxcore.dll
+0x69710000 - 0x69742000 	D:\Apps\Arduino IDE\java\bin\t2k.dll
+0x69700000 - 0x6970a000 	D:\Apps\Arduino IDE\java\bin\management.dll
+0x6c620000 - 0x6c631000 	C:\Windows\system32\napinsp.dll
+0x6c600000 - 0x6c616000 	C:\Windows\system32\pnrpnsp.dll
+0x6c5f0000 - 0x6c600000 	C:\Windows\system32\wshbth.dll
+0x6bdb0000 - 0x6bdc6000 	C:\Windows\system32\NLAapi.dll
+0x74e40000 - 0x74e72000 	C:\Windows\SYSTEM32\IPHLPAPI.DLL
+0x6d990000 - 0x6da21000 	C:\Windows\SYSTEM32\DNSAPI.dll
+0x75950000 - 0x75957000 	C:\Windows\System32\NSI.dll
+0x6c5e0000 - 0x6c5eb000 	C:\Windows\System32\winrnr.dll
+0x6d920000 - 0x6d971000 	C:\Windows\System32\fwpuclnt.dll
+0x6d980000 - 0x6d988000 	C:\Windows\System32\rasadhlp.dll
+0x6d900000 - 0x6d913000 	C:\Windows\SYSTEM32\dhcpcsvc6.DLL
+0x6d8e0000 - 0x6d8f5000 	C:\Windows\SYSTEM32\dhcpcsvc.DLL
+0x73b90000 - 0x73bbf000 	C:\Windows\system32\rsaenh.dll
+0x73a90000 - 0x73aae000 	C:\Windows\SYSTEM32\USERENV.dll
+0x72080000 - 0x720a3000 	C:\Windows\SYSTEM32\DEVOBJ.dll
+0x76a70000 - 0x76ab6000 	C:\Windows\System32\WINTRUST.dll
+0x76b70000 - 0x76b7e000 	C:\Windows\System32\MSASN1.dll
+0x770a0000 - 0x7719b000 	C:\Windows\System32\CRYPT32.dll
+0x696e0000 - 0x69700000 	D:\Apps\Arduino IDE\java\bin\sunec.dll
+0x696d0000 - 0x696d9000 	D:\Apps\Arduino IDE\java\bin\sunmscapi.dll
+0x67290000 - 0x672f9000 	D:\Apps\Arduino IDE\msvcp100.dll
+0x667d0000 - 0x6688e000 	D:\Apps\Arduino IDE\msvcr100.dll
+0x276b0000 - 0x276e2000 	D:\Apps\Arduino IDE\lib\AStylej.dll
+0x67260000 - 0x67284000 	D:\Apps\Arduino IDE\java\bin\dcpr.dll
+0x66660000 - 0x667c9000 	C:\Windows\SYSTEM32\WindowsCodecs.dll
+0x6f910000 - 0x6fa9f000 	C:\Windows\SYSTEM32\dbghelp.dll
+
+VM Arguments:
+jvm_args: -Dsun.java2d.d3d=false -Djna.nosys=true -Djna.nounpack=true -Djna.boot.library.name=jnidispatch-4.2.2-win32-x86 -Djna.boot.library.path=D:\Apps\Arduino IDE/lib -Djssc.library.path=D:\Apps\Arduino IDE/lib -DAPP_DIR=D:\Apps\Arduino IDE -Xms128M -Xmx512M -Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true 
+java_command: processing.app.Base D:\Licenta\Proiect\Robotic_Arm\Unity_Robotic_Arm_Project_Firmware_for_MegaPi\Unity_Robotic_Arm_Project_Firmware_for_MegaPi.ino
+java_class_path (initial): D:\Apps\Arduino IDE\lib\apple.jar;D:\Apps\Arduino IDE\lib\arduino-core.jar;D:\Apps\Arduino IDE\lib\batik-1.8.jar;D:\Apps\Arduino IDE\lib\batik-anim-1.8.jar;D:\Apps\Arduino IDE\lib\batik-awt-util-1.8.jar;D:\Apps\Arduino IDE\lib\batik-bridge-1.8.jar;D:\Apps\Arduino IDE\lib\batik-codec-1.8.jar;D:\Apps\Arduino IDE\lib\batik-css-1.8.jar;D:\Apps\Arduino IDE\lib\batik-dom-1.8.jar;D:\Apps\Arduino IDE\lib\batik-ext-1.8.jar;D:\Apps\Arduino IDE\lib\batik-gvt-1.8.jar;D:\Apps\Arduino IDE\lib\batik-parser-1.8.jar;D:\Apps\Arduino IDE\lib\batik-rasterizer-1.8.jar;D:\Apps\Arduino IDE\lib\batik-script-1.8.jar;D:\Apps\Arduino IDE\lib\batik-squiggle-1.8.jar;D:\Apps\Arduino IDE\lib\batik-svg-dom-1.8.jar;D:\Apps\Arduino IDE\lib\batik-svgpp-1.8.jar;D:\Apps\Arduino IDE\lib\batik-transcoder-1.8.jar;D:\Apps\Arduino IDE\lib\batik-util-1.8.jar;D:\Apps\Arduino IDE\lib\batik-xml-1.8.jar;D:\Apps\Arduino IDE\lib\bcpg-jdk15on-152.jar;D:\Apps\Arduino IDE\lib\bcprov-jdk15on-152.jar;D:\Apps\Arduino IDE\lib\commons-codec-1.7.jar;D:\Apps\Arduino IDE\lib\commons-compress-1.8.jar;D:\Apps\Arduino IDE\lib\commons-exec-1.1.jar;D:\Apps\Arduino IDE\lib\commons-httpclient-3.1.jar;D:\Apps\Arduino IDE\lib\commons-lang3-3.8.1.jar;D:\Apps\Arduino IDE\lib\commons-logging-1.0.4.jar;D:\Apps\Arduino IDE\lib\commons-net-3.3.jar;D:\Apps\Arduino IDE\lib\commons-io-2.6.jar;D:\Apps\Arduino IDE\lib\jackson-annotations-2.9.5.jar;D:\Apps\Arduino IDE\lib\jackson-core-2.9.5.jar;D:\Apps\Arduino IDE\lib\jackson-databind-2.9.5.jar;D:\Apps\Arduino IDE\lib\jackson-module-mrbean-2.9.5.jar;D:\Apps\Arduino IDE\lib\java-semver-0.8.0.jar;D:\Apps\Arduino IDE\lib\jmdns-3.5.3.jar;D:\Apps\Arduino IDE\lib\jtouchbar-1.0.0.jar;D:\Apps\Arduino IDE\lib\log4j-api-2.12.0.jar;D:\Apps\Arduino IDE\lib\log4j-core-2.12.0.jar;D:\Apps\Arduino IDE\lib\slf4j-simple-1.7.22.jar;D:\Apps\Arduino IDE\lib\slf4j-api-1.7.22.jar;D:\Apps\Arduino IDE\lib\jna-4.2.2.jar;D:\Apps\Arduino IDE\lib\jna-platform-4.2.2.jar;D:\Apps\Arduino IDE\lib\js
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=C:\Program Files\Oculus\Support\oculus-runtime;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;D:\Apps\Git\cmd;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\dotnet\;D:\Apps\CMake\bin;C:\Users\crire\AppData\Local\Microsoft\WindowsApps;D:\Apps\MiKTeX 2.9\miktex\bin\x64\;D:\Apps\Microsoft VS Code\bin;D:\Apps\JetBrains\GoLand 2019.3.2\bin;D:\Apps\Arduino IDE\java\bin
+USERNAME=crirex
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 158 Stepping 10, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10.0 , 64 bit Build 18362 (10.0.18362.329)
+
+CPU:total 12 (initial active 12) (6 cores per cpu, 2 threads per core) family 6 model 158 stepping 10, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, 3dnowpref, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2, adx
+
+Memory: 4k page, physical 16623304k(11731164k free), swap 23176904k(16217460k free)
+
+vm_info: Java HotSpot(TM) Client VM (25.191-b12) for windows-x86 JRE (1.8.0_191-b12), built on Oct  6 2018 08:34:23 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Thu Feb 27 11:53:32 2020
+elapsed time: 53 seconds (0d 0h 0m 53s)
+

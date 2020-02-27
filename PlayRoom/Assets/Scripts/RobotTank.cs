@@ -6,8 +6,6 @@ using System.IO.Ports;
 
 public class RobotTank : MonoBehaviour
 {
-    public SerialPort serial = new SerialPort("COM4", 115200);
-
     [SerializeField]
     private GameObject leftClaw;
     [SerializeField]
@@ -64,13 +62,16 @@ public class RobotTank : MonoBehaviour
     private const float rotationRightSpeedCorrector = 0.0095f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
     private const float rotationLeftSpeedCorrector = 0.01f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
     private const float forwardSpeedCorrector = 0.00002724f; // This value is sync
-    private const float armGoingDownSpeedCorrector = 0.0031f; // Because of gravity it moves up slower. //This value is sync
-    private const float armGoingUpSpeedCorrector = 0.0029f; // This value is sync
-    private const float clawSpeedCorrector = 0.0014f;
+    private const float armGoingDownSpeedCorrector = 0.0053f; // Because of gravity it moves up slower. //This value is sync
+    private const float armGoingUpSpeedCorrector = 0.0051f; // This value is sync
+    private const float clawSpeedCorrector = 0.0021f;
 
     private const float deadZone = 0.2f;
     private const float oneCM = 0.01917f;
     private const float maximumRadius = 1f;
+    private const float maximumUtrasonicDistance = 500;
+    private const float maximumXRotationInWhichTheTankCanMove = 100;
+    private const float minimumXRotationInWhichTheTankCanMove = 80;
 
     int forwardSpeedValue = 0;
     int rotationSpeedValue = 0;
@@ -87,9 +88,6 @@ public class RobotTank : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        serial.Open();
-        serial.ReadTimeout = 1;
-
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         lastUpperBodyRotationZ = 0;
         lastClawRotation = 0;
@@ -147,45 +145,39 @@ public class RobotTank : MonoBehaviour
         CloseClawAfterButtonForce();
         MoveGrabableObject();
 
-        if (serial.IsOpen)
+        if (ManagerIO.Instance.IsOpen)
         {
-            serial.Write(GetMovementSendString());
-            serial.Write(GetUpperBodySendString());
-            serial.Write(GetClawSendString());
+            ManagerIO.Instance.Write(GetMovementSendString());
+            ManagerIO.Instance.Write(GetUpperBodySendString());
+            ManagerIO.Instance.Write(GetClawSendString());
 
-            if (serial.BytesToRead > 2*4 - 1 && (int)serial.ReadByte() == 255)
+            if (ManagerIO.Instance.ReadLenght > 2*4 - 1 && (int)ManagerIO.Instance.Read() == 255)
             {
-                //Debug.Log("X:" + readFloat());
-                //Debug.Log("Y:" + readFloat());
                 gyroRotation = readFloat();
-                Debug.Log("Z:" + gyroRotation);
-                //Debug.Log("gyroX:" + readFloat());
-                //Debug.Log("gyroY:" + readFloat());
                 utrasonicDistance = readFloat();
-                Debug.Log("Utrasonic:" + utrasonicDistance + "cm");
-                Debug.Log(serial.BytesToRead);
             }
         }
         else
         {
-            serial.Open();
+            ManagerIO.Instance.Initialize();
         }
     }
 
     float readFloat()
     {
         byte[] byteArray = new byte[4];
-        byteArray[0] = (byte)serial.ReadByte();
-        byteArray[1] = (byte)serial.ReadByte();
-        byteArray[2] = (byte)serial.ReadByte();
-        byteArray[3] = (byte)serial.ReadByte();
+        byteArray[0] = (byte)ManagerIO.Instance.Read();
+        byteArray[1] = (byte)ManagerIO.Instance.Read();
+        byteArray[2] = (byte)ManagerIO.Instance.Read();
+        byteArray[3] = (byte)ManagerIO.Instance.Read();
         return BitConverter.ToSingle(byteArray, 0);
     }
 
     bool IsNotTurned()
     {
         var tankRotations = transform.rotation.eulerAngles;
-        if (tankRotations.x > 100 || tankRotations.x < 80)
+        if (tankRotations.x > maximumXRotationInWhichTheTankCanMove || 
+            tankRotations.x < minimumXRotationInWhichTheTankCanMove)
         {
             return false;
         }
@@ -194,7 +186,7 @@ public class RobotTank : MonoBehaviour
 
     void MoveGrabableObject()
     {
-        if (utrasonicDistance < 500)
+        if (utrasonicDistance < maximumUtrasonicDistance)
         {
             Transform tankTransform = gameObject.GetComponent<Transform>();
             grabObject.transform.position = new Vector3(tankTransform.transform.position.x, grabObject.transform.position.y, tankTransform.transform.position.z + utrasonicDistance * oneCM + 0.162f);
@@ -215,8 +207,7 @@ public class RobotTank : MonoBehaviour
             {
                 rotateToValue = wholeBodyAngles.z - rotationLeftSpeedCorrector * rotationSpeedValue;
             }
-            //Debug.Log(rotationRightSpeedCorrector * rotationSpeedValue);
-            if (!serial.IsOpen)
+            if (!ManagerIO.Instance.IsOpen)
             {
                 rotationBody.transform.localRotation = Quaternion.Euler(wholeBodyAngles.x, wholeBodyAngles.y, rotateToValue);
             }
@@ -230,7 +221,6 @@ public class RobotTank : MonoBehaviour
         {
             var wholeBodyPosition = movementBody.transform.localPosition;
             float moveToValue = wholeBodyPosition.y + forwardSpeedCorrector * forwardSpeedValue;
-            //Debug.Log(forwardSpeedCorrector * forwardSpeedValue);
             movementBody.transform.localPosition = new Vector3(wholeBodyPosition.x, moveToValue, wholeBodyPosition.z);
             this.transform.position = movementBody.transform.position;
             movementBody.transform.localPosition = new Vector3(0, 0, 0);
@@ -241,7 +231,6 @@ public class RobotTank : MonoBehaviour
     {
         if (!hasObject)
         {
-            //float resultingRotationValue = (maximumOutwardsClawRotation - maximumInwardsClawRotation) * (1 - rightHandTrigger) + maximumInwardsClawRotation;
             float resultingRotationValue = GetValueInBordersForClaw();
             var rightAngles = rightClaw.transform.localRotation.eulerAngles;
             var leftAngles = leftClaw.transform.localRotation.eulerAngles;

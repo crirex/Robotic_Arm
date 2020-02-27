@@ -1,38 +1,67 @@
 ﻿public interface InterfaceIO
 {
-    // Connection is open
+    /// <summary>
+    /// Connection is open
+    /// </summary>
     bool IsOpen { get; }
 
-    // Is available to read
+    /// <summary>
+    /// Is available to read
+    /// </summary>
     bool IsAvailable { get; }
 
-    // Write a bytes with a character
+    /// <summary>
+    /// Number of bytes to read
+    /// </summary>
+    int ReadLenght { get; }
+
+    /// <summary>
+    /// Write a bytes with a character
+    /// </summary>
     void Write(char character);
 
-    // Write more bytes with a list of characters
+    /// <summary>
+    /// Write more bytes with a list of characters
+    /// </summary>
     void Write(string characters);
 
-    // Write a byte
+    /// <summary>
+    /// Write a byte
+    /// </summary>
     void Write(byte sentByte);
 
-    // Write more bytes
+    /// <summary>
+    /// Write more bytes
+    /// </summary>
     void Write(byte[] sentBytes);
 
-    // Write a byte with an int
+    /// <summary>
+    /// Write a byte with an int
+    /// </summary>
     void Write(int number);
 
-    //Read the first byte
+    /// <summary>
+    /// Read the first byte
+    /// </summary>
     int Read();
 
-    //Full controll read for bytes
-    int Read(int lenght, int offset = 0);
+    /// <summary>
+    /// Full controll read for bytes
+    /// </summary>
+    byte[] Read(int lenght, int offset = 0);
 
-    // Read everything on the stream
-    int ReadAll();
+    /// <summary>
+    /// Read everything on the stream
+    /// </summary>
+    byte[] ReadAll();
 
-    // Connect devices
+    /// <summary>
+    /// Connect devices
+    /// </summary>
     void Initialize();
 
-    // Close connection
+    /// <summary>
+    /// Close connection
+    /// </summary>
     void Close();
 }

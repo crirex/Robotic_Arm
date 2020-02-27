@@ -5,7 +5,7 @@ using UnityEngine;
 public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
 {
     [SerializeField]
-    private string portName = "COM5";
+    private string portName = "COM8";
 
     [SerializeField]
     private int baudRate = 115200;
@@ -51,10 +51,25 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public int ReadLenght
     {
-        AddMember(new BluetoothIO(laptopMac, robotMac, robotPin));
+        get
+        {
+            int totalLenght = 0;
+            foreach (InterfaceIO memberIO in membersIO)
+            {
+                if (memberIO.IsAvailable)
+                {
+                    totalLenght += memberIO.ReadLenght;
+                }
+            }
+            return totalLenght;
+        }
+    }
+
+    private ManagerIO()
+    {
+        //AddMember(new BluetoothIO(laptopMac, robotMac, robotPin));
         AddMember(new SerialPortIO(portName, baudRate));
         Initialize();
     }
@@ -116,7 +131,7 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
         return 0;
     }
 
-    public int Read(int lenght, int offset = 0)
+    public byte[] Read(int lenght, int offset = 0)
     {
         foreach (InterfaceIO memberIO in membersIO)
         {
@@ -125,10 +140,10 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
                 return memberIO.Read(lenght, offset);
             }
         }
-        return 0;
+        return null;
     }
 
-    public int ReadAll()
+    public byte[] ReadAll()
     {
         foreach (InterfaceIO memberIO in membersIO)
         {
@@ -137,7 +152,7 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
                 return memberIO.ReadAll();
             }
         }
-        return 0;
+        return null;
     }
 
     public void Initialize()

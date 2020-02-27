@@ -10,7 +10,7 @@ public class BluetoothIO : InterfaceIO
     private readonly BluetoothClient BC;
     private readonly BluetoothDeviceInfo BTDevice;
 
-    private string UserMacAdress {get; set;}
+    private string UserMacAdress { get; set;}
 
     private string DeviceMacAdress { get; set; }
 
@@ -19,6 +19,8 @@ public class BluetoothIO : InterfaceIO
     public bool IsOpen => BC.GetStream().CanRead ? BC != null : false;
 
     public bool IsAvailable => BC.GetStream().DataAvailable ? BC != null : false;
+
+    public int ReadLenght => (int)BC.GetStream().Length;
 
     public BluetoothIO(string userMacAdress, string deviceMacAdress, string pin = "1234")
     {
@@ -86,31 +88,33 @@ public class BluetoothIO : InterfaceIO
         }
     }
 
-    public int Read(int lenght, int offset = 0)
+    public byte[] Read(int lenght, int offset = 0)
     {
         if (IsOpen && IsAvailable)
         {
             byte[] readBytes = new byte[lenght];
-            return BC.GetStream().Read(readBytes, offset, readBytes.Length);
+            BC.GetStream().Read(readBytes, offset, readBytes.Length);
+            return readBytes;
         }
         else
         {
             Debug.Log("Sorry. You cannot read from this NetworkStream.");
-            return 0;
+            return null;
         }
     }
 
-    public int ReadAll()
+    public byte[] ReadAll()
     {
         if (IsOpen && IsAvailable)
         {
             byte[] readBytes = new byte[BC.GetStream().Length];
-            return BC.GetStream().Read(readBytes, 0, readBytes.Length);
+            BC.GetStream().Read(readBytes, 0, readBytes.Length);
+            return readBytes;
         }
         else
         {
             Debug.Log("Sorry. You cannot read from this NetworkStream.");
-            return 0;
+            return null;
         }
     }
 

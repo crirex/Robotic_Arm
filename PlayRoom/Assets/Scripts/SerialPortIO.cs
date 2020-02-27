@@ -10,7 +10,9 @@ public class SerialPortIO : InterfaceIO
 
     public bool IsOpen => serial.IsOpen;
 
-    public bool IsAvailable => serial.ReadBufferSize > 0 ? serial != null : false;
+    public bool IsAvailable => serial.BytesToRead > 0 ? serial != null : false;
+
+    public int ReadLenght => serial.BytesToRead;
 
     public SerialPortIO(string portName, int baudRate)
     {
@@ -40,7 +42,7 @@ public class SerialPortIO : InterfaceIO
     {
         if(IsOpen & IsAvailable)
         {
-            return serial.ReadChar();
+            return serial.ReadByte();
         }
         else
         {
@@ -49,31 +51,33 @@ public class SerialPortIO : InterfaceIO
         }
     }
 
-    public int Read(int lenght, int offset = 0)
+    public byte[] Read(int lenght, int offset = 0)
     {
         if (IsOpen & IsAvailable)
         {
             byte[] bytes = new byte[lenght];
-            return serial.Read(bytes, offset, bytes.Length);
+            serial.Read(bytes, offset, bytes.Length);
+            return bytes;
         }
         else
         {
             Debug.Log("Sorry, you can not read from serial.");
-            return 0;
+            return null;
         }
     }
 
-    public int ReadAll()
+    public byte[] ReadAll()
     {
         if (IsOpen & IsAvailable)
         {
-            byte[] bytes = new byte[serial.ReadBufferSize];
-            return serial.Read(bytes, 0, bytes.Length);
+            byte[] bytes = new byte[serial.BytesToRead];
+            serial.Read(bytes, 0, bytes.Length);
+            return bytes;
         }
         else
         {
             Debug.Log("Sorry, you can not read from serial.");
-            return 0;
+            return null;
         }
     }
 

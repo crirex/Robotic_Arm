@@ -3,9 +3,9 @@
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     // Check to see if we're about to be destroyed.
-    private static bool m_ShuttingDown = false;
-    private static object m_Lock = new object();
-    private static T m_Instance;
+    private static bool shuttingDown = false;
+    private static object locker = new object();
+    private static T instance;
 
     /// <summary>
     /// Access singleton instance through this propriety.
@@ -14,26 +14,26 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            if (m_ShuttingDown)
+            if (shuttingDown)
             {
                 Debug.LogWarning("[Singleton] Instance '" + typeof(T) +
                     "' already destroyed. Returning null.");
                 return null;
             }
 
-            lock (m_Lock)
+            lock (locker)
             {
-                if (m_Instance == null)
+                if (instance == null)
                 {
                     // Search for existing instance.
-                    m_Instance = (T)FindObjectOfType(typeof(T));
+                    instance = (T)FindObjectOfType(typeof(T));
 
                     // Create new instance if one doesn't already exist.
-                    if (m_Instance == null)
+                    if (instance == null)
                     {
                         // Need to create a new GameObject to attach the singleton to.
                         var singletonObject = new GameObject();
-                        m_Instance = singletonObject.AddComponent<T>();
+                        instance = singletonObject.AddComponent<T>();
                         singletonObject.name = typeof(T).ToString() + " (Singleton)";
 
                         // Make instance persistent.
@@ -41,7 +41,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                     }
                 }
 
-                return m_Instance;
+                return instance;
             }
         }
     }
@@ -49,12 +49,12 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        m_ShuttingDown = true;
+        shuttingDown = true;
     }
 
 
     private void OnDestroy()
     {
-        m_ShuttingDown = true;
+        shuttingDown = true;
     }
 }
