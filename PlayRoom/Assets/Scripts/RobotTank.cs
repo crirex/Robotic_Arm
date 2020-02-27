@@ -27,59 +27,13 @@ public class RobotTank : MonoBehaviour
 
     public static bool hasObject = false;
 
-    float rightHandTrigger;
-    float leftHandTrigger;
-    float rightIndexTrigger;
-    float leftIndexTrigger;
-    float leftThumbstickUpDown;
-    float leftThumbstickLeftRight;
-    float rightThumbstickUpDown;
-    float rightThumbstickLeftRight;
-    Vector3 leftControllerPosition;
-    Vector3 rightControllerPosition;
-    Vector3 leftControllerRotation;
-    Vector3 rightControllerRotation;
-
-    private const float maximumOutwardsClawRotation = 0f; //Rotations tested for right claw, left claw has oposite rotations
-    //private const float maximumInwardsClawRotation = -28.2f;
-    private const float maximumInwardsClawRotation = -32.8f;
-    private const float OutwardsXPosition = 0.0654f;
-    private const float InwardsRightClawXPosition = 0.0716f;
-    private const float InwardsLeftClawXPosition = OutwardsXPosition - (InwardsRightClawXPosition - OutwardsXPosition);
-    private const float OutwardsZPosition = 0.2178f;
-    private const float InwardsRightClawZPosition = 0.2062f;
-    private const float InwardsLeftClawZPosition = OutwardsZPosition - (OutwardsZPosition - InwardsRightClawZPosition);
-    private const float maximumMotorObjectZPositionOffset = -0.01f;
-    private const float maximumBackwardsUpperBodyRotation = -95.3f;
-    private const float maximumForwardsUpperBodyRotation = 16f;
-
-    private const int maximumSpeed = 150; // This can be put all the way to 255 only but the tests are going to be for 150 as it's speed is adequate and it would be okay for simulations that the speed is the same.
-    private const int minimumSpeed = 150;
-
-    private const int firstSafeAsciiCharacter = 33;
-    private const int lastSafeAsciiCharacter = 126;
-
-    private const float rotationRightSpeedCorrector = 0.0095f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
-    private const float rotationLeftSpeedCorrector = 0.01f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
-    private const float forwardSpeedCorrector = 0.00002724f; // This value is sync
-    private const float armGoingDownSpeedCorrector = 0.0053f; // Because of gravity it moves up slower. //This value is sync
-    private const float armGoingUpSpeedCorrector = 0.0051f; // This value is sync
-    private const float clawSpeedCorrector = 0.0021f;
-
-    private const float deadZone = 0.2f;
-    private const float oneCM = 0.01917f;
-    private const float maximumRadius = 1f;
-    private const float maximumUtrasonicDistance = 500;
-    private const float maximumXRotationInWhichTheTankCanMove = 100;
-    private const float minimumXRotationInWhichTheTankCanMove = 80;
-
     int forwardSpeedValue = 0;
     int rotationSpeedValue = 0;
     int armSpeedValue = 0;
     int clawSpeedValue = 0;
 
     float gyroRotation = 0;
-    float utrasonicDistance = 0;
+    float utrasonicDistance = Constants.maximumUtrasonicDistance;
 
     private float firstMotorObjectZPosition;
     private float lastUpperBodyRotationZ;
@@ -91,53 +45,38 @@ public class RobotTank : MonoBehaviour
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         lastUpperBodyRotationZ = 0;
         lastClawRotation = 0;
-        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyBelow.transform.localRotation.eulerAngles.x, upperBodyBelow.transform.localRotation.eulerAngles.y, -50);
+        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyBelow.transform.localRotation.eulerAngles.x, 
+            upperBodyBelow.transform.localRotation.eulerAngles.y, -50);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        rightHandTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);
-        leftHandTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger);
-
-        rightIndexTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger);
-        leftIndexTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger);
-
-        leftControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
-        rightControllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
-
-        leftControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch).eulerAngles;
-        rightControllerRotation = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
-
-        leftThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).y;
-        rightThumbstickUpDown = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
-
-        leftThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).x;
-        rightThumbstickLeftRight = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
+        OculusManager.Instance.UpdateValues();
 
         Vector2 rotationAndForwardValue = CalculateRotaionAndForwardSpeed();
         rotationSpeedValue = NormalizeValue((int)rotationAndForwardValue.x);
         forwardSpeedValue = NormalizeValue((int)rotationAndForwardValue.y);
 
-        if (Math.Abs(rightThumbstickUpDown) > deadZone)
+        if (Math.Abs(OculusManager.Instance.RightThumbstickUpDown) > Constants.deadZone)
         {
-            armSpeedValue = NormalizeValue((int)(-rightThumbstickUpDown * maximumSpeed));
+            armSpeedValue = NormalizeValue((int)(-OculusManager.Instance.RightThumbstickUpDown * Constants.maximumSpeed));
         }
         else
         {
             armSpeedValue = 0;
         }
 
-        if ((Math.Abs(rightHandTrigger) > deadZone || Math.Abs(leftHandTrigger) > deadZone))
+        if ((Math.Abs(OculusManager.Instance.RightHandTrigger) > Constants.deadZone || 
+            Math.Abs(OculusManager.Instance.LeftHandTrigger) > Constants.deadZone))
         {
-            clawSpeedValue = NormalizeValue((int)((rightHandTrigger - leftHandTrigger) * maximumSpeed));
+            clawSpeedValue = NormalizeValue((int)((OculusManager.Instance.RightHandTrigger - 
+                OculusManager.Instance.LeftHandTrigger) * Constants.maximumSpeed));
         }
         else
         {
             clawSpeedValue = 0;
         }
-
-        //Debug.Log(""+forwardSpeedValue + " " + rotationSpeedValue + " " + armSpeedValue + " " + clawSpeedValue);
 
         MoveLeftRight();
         MoveForwardBackwards();
@@ -151,7 +90,8 @@ public class RobotTank : MonoBehaviour
             ManagerIO.Instance.Write(GetUpperBodySendString());
             ManagerIO.Instance.Write(GetClawSendString());
 
-            if (ManagerIO.Instance.ReadLenght > 2*4 - 1 && (int)ManagerIO.Instance.Read() == 255)
+            if (ManagerIO.Instance.ReadLenght >= Constants.bytesToReadFromRobot && 
+                ManagerIO.Instance.Read() == Constants.syncValue)
             {
                 gyroRotation = readFloat();
                 utrasonicDistance = readFloat();
@@ -165,19 +105,19 @@ public class RobotTank : MonoBehaviour
 
     float readFloat()
     {
-        byte[] byteArray = new byte[4];
-        byteArray[0] = (byte)ManagerIO.Instance.Read();
-        byteArray[1] = (byte)ManagerIO.Instance.Read();
-        byteArray[2] = (byte)ManagerIO.Instance.Read();
-        byteArray[3] = (byte)ManagerIO.Instance.Read();
+        byte[] byteArray = new byte[Constants.bytesForFloat];
+        for(int i = 0; i < Constants.bytesForFloat; ++i)
+        {
+            byteArray[i] = (byte)ManagerIO.Instance.Read();
+        }
         return BitConverter.ToSingle(byteArray, 0);
     }
 
     bool IsNotTurned()
     {
         var tankRotations = transform.rotation.eulerAngles;
-        if (tankRotations.x > maximumXRotationInWhichTheTankCanMove || 
-            tankRotations.x < minimumXRotationInWhichTheTankCanMove)
+        if (tankRotations.x > Constants.maximumXRotationInWhichTheTankCanMove || 
+            tankRotations.x < Constants.minimumXRotationInWhichTheTankCanMove)
         {
             return false;
         }
@@ -186,10 +126,11 @@ public class RobotTank : MonoBehaviour
 
     void MoveGrabableObject()
     {
-        if (utrasonicDistance < maximumUtrasonicDistance)
+        if (utrasonicDistance < Constants.maximumUtrasonicDistance)
         {
             Transform tankTransform = gameObject.GetComponent<Transform>();
-            grabObject.transform.position = new Vector3(tankTransform.transform.position.x, grabObject.transform.position.y, tankTransform.transform.position.z + utrasonicDistance * oneCM + 0.162f);
+            grabObject.transform.position = new Vector3(tankTransform.transform.position.x, grabObject.transform.position.y, 
+                tankTransform.transform.position.z + utrasonicDistance * Constants.oneCM + Constants.objectDistanceCorrector);
         }
     }
 
@@ -201,11 +142,11 @@ public class RobotTank : MonoBehaviour
             float rotateToValue = 0;
             if (rotationSpeedValue > 0)
             {
-                rotateToValue = wholeBodyAngles.z - rotationRightSpeedCorrector * rotationSpeedValue;
+                rotateToValue = wholeBodyAngles.z - Constants.rotationRightSpeedCorrector * rotationSpeedValue;
             }
             else
             {
-                rotateToValue = wholeBodyAngles.z - rotationLeftSpeedCorrector * rotationSpeedValue;
+                rotateToValue = wholeBodyAngles.z - Constants.rotationLeftSpeedCorrector * rotationSpeedValue;
             }
             if (!ManagerIO.Instance.IsOpen)
             {
@@ -220,7 +161,7 @@ public class RobotTank : MonoBehaviour
         if (IsNotTurned())
         {
             var wholeBodyPosition = movementBody.transform.localPosition;
-            float moveToValue = wholeBodyPosition.y + forwardSpeedCorrector * forwardSpeedValue;
+            float moveToValue = wholeBodyPosition.y + Constants.forwardSpeedCorrector * forwardSpeedValue;
             movementBody.transform.localPosition = new Vector3(wholeBodyPosition.x, moveToValue, wholeBodyPosition.z);
             this.transform.position = movementBody.transform.position;
             movementBody.transform.localPosition = new Vector3(0, 0, 0);
@@ -237,30 +178,33 @@ public class RobotTank : MonoBehaviour
             rightClaw.transform.localRotation = Quaternion.Euler(rightAngles.x, resultingRotationValue, rightAngles.z);
             leftClaw.transform.localRotation = Quaternion.Euler(leftAngles.x, -resultingRotationValue, leftAngles.z);
 
-            float closedPercent = 1 - resultingRotationValue / (maximumOutwardsClawRotation - maximumInwardsClawRotation);
+            float closedPercent = 1 - resultingRotationValue / 
+                (Constants.maximumOutwardsClawRotation - Constants.maximumInwardsClawRotation);
 
             rightClaw.transform.localPosition = new Vector3(
-                (InwardsRightClawXPosition - OutwardsXPosition) * closedPercent + OutwardsXPosition,
+                (Constants.InwardsRightClawXPosition - Constants.OutwardsXPosition) * closedPercent + Constants.OutwardsXPosition,
                 rightClaw.transform.localPosition.y,
-                (InwardsRightClawZPosition - OutwardsZPosition) * closedPercent + OutwardsZPosition);
+                (Constants.InwardsRightClawZPosition - Constants.OutwardsZPosition) * closedPercent + Constants.OutwardsZPosition);
 
             leftClaw.transform.localPosition = new Vector3(
-                (InwardsLeftClawXPosition - OutwardsXPosition) * closedPercent + OutwardsXPosition,
+                (Constants.InwardsLeftClawXPosition - Constants.OutwardsXPosition) * closedPercent + Constants.OutwardsXPosition,
                 leftClaw.transform.localPosition.y,
-                (InwardsLeftClawZPosition - OutwardsZPosition) * closedPercent + OutwardsZPosition);
+                (Constants.InwardsLeftClawZPosition - Constants.OutwardsZPosition) * closedPercent + Constants.OutwardsZPosition);
 
             motorObject.transform.localPosition = new Vector3(motorObject.transform.localPosition.x,
                 motorObject.transform.localPosition.y,
-                firstMotorObjectZPosition + maximumMotorObjectZPositionOffset * closedPercent);
+                firstMotorObjectZPosition + Constants.maximumMotorObjectZPositionOffset * closedPercent);
         }
     }
 
     void MoveUpperBody()
     {
         var upperBodyAngles = upperBodyBelow.transform.localRotation.eulerAngles;
-        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, GetValueInBordersForUpperBody());
+        upperBodyBelow.transform.localRotation = Quaternion.Euler(upperBodyAngles.x, upperBodyAngles.y, 
+            GetValueInBordersForUpperBody());
         upperBodyAbove.transform.localRotation = upperBodyBelow.transform.localRotation;
-        clawSupport.transform.eulerAngles = new Vector3(270, clawSupport.transform.eulerAngles.y, clawSupport.transform.eulerAngles.z);
+        clawSupport.transform.eulerAngles = new Vector3(270, clawSupport.transform.eulerAngles.y, 
+            clawSupport.transform.eulerAngles.z);
     }
 
     float GetValueInBordersForUpperBody()
@@ -269,41 +213,42 @@ public class RobotTank : MonoBehaviour
 
         if (armSpeedValue > 0)
         {
-            rotateToValue += armGoingDownSpeedCorrector * armSpeedValue;
+            rotateToValue += Constants.armGoingDownSpeedCorrector * armSpeedValue;
         }
         else if (armSpeedValue < 0)
         {
-            rotateToValue += armGoingUpSpeedCorrector * armSpeedValue;
+            rotateToValue += Constants.armGoingUpSpeedCorrector * armSpeedValue;
         }
-        if (maximumBackwardsUpperBodyRotation < rotateToValue && rotateToValue < maximumForwardsUpperBodyRotation)
+        if (Constants.maximumBackwardsUpperBodyRotation < rotateToValue && 
+            rotateToValue < Constants.maximumForwardsUpperBodyRotation)
         {
             lastUpperBodyRotationZ = rotateToValue;
         }
-        else if (rotateToValue > maximumForwardsUpperBodyRotation)
+        else if (rotateToValue > Constants.maximumForwardsUpperBodyRotation)
         {
-            lastUpperBodyRotationZ = maximumForwardsUpperBodyRotation;
+            lastUpperBodyRotationZ = Constants.maximumForwardsUpperBodyRotation;
         }
-        else if (rotateToValue < maximumBackwardsUpperBodyRotation)
+        else if (rotateToValue < Constants.maximumBackwardsUpperBodyRotation)
         {
-            lastUpperBodyRotationZ = maximumBackwardsUpperBodyRotation;
+            lastUpperBodyRotationZ = Constants.maximumBackwardsUpperBodyRotation;
         }
         return lastUpperBodyRotationZ;
     }
 
     float GetValueInBordersForClaw()
     {
-        float rotateToValue = lastClawRotation + clawSpeedCorrector * -clawSpeedValue;
-        if (maximumInwardsClawRotation < rotateToValue && rotateToValue < maximumOutwardsClawRotation)
+        float rotateToValue = lastClawRotation + Constants.clawSpeedCorrector * -clawSpeedValue;
+        if (Constants.maximumInwardsClawRotation < rotateToValue && rotateToValue < Constants.maximumOutwardsClawRotation)
         {
             lastClawRotation = rotateToValue;
         }
-        else if(rotateToValue > maximumOutwardsClawRotation)
+        else if(rotateToValue > Constants.maximumOutwardsClawRotation)
         {
-            lastClawRotation = maximumOutwardsClawRotation;
+            lastClawRotation = Constants.maximumOutwardsClawRotation;
         }
-        else if (rotateToValue < maximumInwardsClawRotation)
+        else if (rotateToValue < Constants.maximumInwardsClawRotation)
         {
-            lastClawRotation = maximumInwardsClawRotation;
+            lastClawRotation = Constants.maximumInwardsClawRotation;
         }
         return lastClawRotation;
     }
@@ -318,18 +263,19 @@ public class RobotTank : MonoBehaviour
         //if (arithmeticMedian != 0)
         {
             //xNomalized = leftThumbstickLeftRight / arithmeticMedian;
-            if (Math.Abs(leftThumbstickLeftRight) > deadZone)
+            if (Math.Abs(OculusManager.Instance.LeftThumbstickLeftRight) > Constants.deadZone)
             {
-                xNomalized = leftThumbstickLeftRight;
+                xNomalized = OculusManager.Instance.LeftThumbstickLeftRight;
             }
             //yNomalized = leftThumbstickUpDown / arithmeticMedian;
-            if (Math.Abs(rightIndexTrigger) > deadZone || Math.Abs(leftIndexTrigger) > deadZone)
+            if (Math.Abs(OculusManager.Instance.RightIndexTrigger) > Constants.deadZone || 
+                Math.Abs(OculusManager.Instance.LeftIndexTrigger) > Constants.deadZone)
             {
-                yNomalized = rightIndexTrigger - leftIndexTrigger;
+                yNomalized = OculusManager.Instance.RightIndexTrigger - OculusManager.Instance.LeftIndexTrigger;
             }
         }
 
-        float speedValue = NormalizeValue((int)(maximumSpeed * speedMultiplyer));
+        float speedValue = NormalizeValue((int)(Constants.maximumSpeed * speedMultiplyer));
 
         float rotationSpeed = xNomalized * speedValue;
         float forwardSpeed = yNomalized * speedValue;
@@ -341,80 +287,80 @@ public class RobotTank : MonoBehaviour
         int motor1Speed = NormalizeValue(forwardSpeedValue - rotationSpeedValue) / 3; // movement R speed
         int motor2Speed = NormalizeValue(-(forwardSpeedValue + rotationSpeedValue)) / 3; // movement L speed
 
-        char motor1SpeedSign = 'P'; // R sign
-        char motor2SpeedSign = 'P'; // L sign
+        char motor1SpeedSign = Constants.positiveSign; // R sign
+        char motor2SpeedSign = Constants.positiveSign; // L sign
 
         if (motor1Speed < 0)
         {
             motor1Speed *= -1;
-            motor1SpeedSign = 'N';
+            motor1SpeedSign = Constants.negativeSign;
         }
 
         if (motor2Speed < 0)
         {
             motor2Speed *= -1;
-            motor2SpeedSign = 'N';
+            motor2SpeedSign = Constants.negativeSign;
         }
 
-        char motor1SpeedSend = (char)(motor1Speed + firstSafeAsciiCharacter);
-        char motor2SpeedSend = (char)(motor2Speed + firstSafeAsciiCharacter);
+        char motor1SpeedSend = (char)(motor1Speed + Constants.firstSafeAsciiCharacter);
+        char motor2SpeedSend = (char)(motor2Speed + Constants.firstSafeAsciiCharacter);
 
-        return "M" + motor1SpeedSign + motor1SpeedSend +
+        return Constants.movementOption.ToString() + motor1SpeedSign + motor1SpeedSend +
             motor2SpeedSign + motor2SpeedSend;
     }
 
     string GetUpperBodySendString()
     {
         int armSpeed = armSpeedValue / 3; // arm speed
-        char armSpeedSign = 'P'; // arm sign
+        char armSpeedSign = Constants.positiveSign; // arm sign
 
         if (armSpeed < 0)
         {
             armSpeed *= -1;
-            armSpeedSign = 'N';
+            armSpeedSign = Constants.negativeSign;
         }
 
-        char armSpeedSend = (char)(armSpeed + firstSafeAsciiCharacter);
+        char armSpeedSend = (char)(armSpeed + Constants.firstSafeAsciiCharacter);
 
-        return "A" + armSpeedSign + armSpeedSend;
+        return Constants.armOption.ToString() + armSpeedSign + armSpeedSend;
     }
 
     string GetClawSendString()
     {
         int clawSpeed = clawSpeedValue / 3; // claw speed
-        char clawSpeedSign = 'P'; // claw sign
+        char clawSpeedSign = Constants.positiveSign; // claw sign
 
         if (clawSpeed < 0)
         {
             clawSpeed *= -1;
-            clawSpeedSign = 'N';
+            clawSpeedSign = Constants.negativeSign;
         }
 
-        char clawSpeedSend = (char)(clawSpeed + firstSafeAsciiCharacter);
+        char clawSpeedSend = (char)(clawSpeed + Constants.firstSafeAsciiCharacter);
 
-        return "C" + clawSpeedSign + clawSpeedSend;
+        return Constants.clawOption.ToString() + clawSpeedSign + clawSpeedSend;
     }
 
     int NormalizeValue(int value)
     {
-        if (value < minimumSpeed && value > 0)
+        if (value < Constants.minimumSpeed && value > 0)
         {
-            value = minimumSpeed;
+            value = Constants.minimumSpeed;
         }
 
-        if (value > -minimumSpeed && value < 0)
+        if (value > -Constants.minimumSpeed && value < 0)
         {
-            value = -minimumSpeed;
+            value = -Constants.minimumSpeed;
         }
 
-        if (value > maximumSpeed)
+        if (value > Constants.maximumSpeed)
         {
-            value = maximumSpeed;
+            value = Constants.maximumSpeed;
         }
 
-        if (value < -maximumSpeed)
+        if (value < -Constants.maximumSpeed)
         {
-            value = -maximumSpeed;
+            value = -Constants.maximumSpeed;
         }
         return value;
     }
