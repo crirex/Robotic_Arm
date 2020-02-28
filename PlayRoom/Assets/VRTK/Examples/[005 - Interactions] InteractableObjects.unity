@@ -3046,7 +3046,6 @@ GameObject:
   - component: {fileID: 750496456}
   - component: {fileID: 750496455}
   - component: {fileID: 750496458}
-  - component: {fileID: 750496457}
   m_Layer: 10
   m_Name: RobotArmTank
   m_TagString: Untagged
@@ -3115,28 +3114,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 750496453}
   m_Mesh: {fileID: -6780164932370699998, guid: 4157dc90c4f960d4ea7965b363e5334f, type: 3}
---- !u!114 &750496457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 750496453}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3eae3d21cd05af4b9591d2d03850805, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  managerIO: {fileID: 0}
-  leftClaw: {fileID: 1845093112}
-  rightClaw: {fileID: 217646631}
-  upperBodyBelow: {fileID: 1577361915}
-  upperBodyAbove: {fileID: 1339371709}
-  clawSupport: {fileID: 457797150}
-  movementBody: {fileID: 781862434}
-  rotationBody: {fileID: 701906269}
-  motorObject: {fileID: 1647106003}
-  grabObject: {fileID: 408090439}
 --- !u!54 &750496458
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7484,6 +7461,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1595400649}
+  - component: {fileID: 1595400651}
   - component: {fileID: 1595400650}
   m_Layer: 0
   m_Name: Manager
@@ -7515,14 +7493,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1595400648}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b41d55fa67dc43a40a8555c8ff9b1c3f, type: 3}
+  m_Script: {fileID: 11500000, guid: f1e30c7d8e2dd9548807a543c9d16038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM4
-  baudRate: 115200
-  laptopMac: A4:C3:F0:9E:F1:4B
-  robotMac: 00:1B:10:64:4A:99
-  robotPin: 0000
+--- !u!114 &1595400651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595400648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3eae3d21cd05af4b9591d2d03850805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1609818654
 GameObject:
   m_ObjectHideFlags: 0

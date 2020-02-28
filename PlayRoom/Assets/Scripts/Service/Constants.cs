@@ -39,6 +39,7 @@ public class Constants
     #region Data Conversation
     public const int firstSafeAsciiCharacter = 33;
     public const int lastSafeAsciiCharacter = 126;
+    public const int normalizationValueForSendData = 3;
     public const int bytesForFloat = 4;
     public const int bytesForDouble = 8;
     public const int bytesToReadFromRobot = 2 * bytesForFloat;

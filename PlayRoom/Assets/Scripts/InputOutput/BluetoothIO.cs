@@ -6,22 +6,29 @@ using UnityEngine;
 
 public class BluetoothIO : InterfaceIO
 {
+    #region Private members
     private readonly BluetoothEndPoint EP;
     private readonly BluetoothClient BC;
     private readonly BluetoothDeviceInfo BTDevice;
+    #endregion
 
+    #region Private proprieties
     private string UserMacAdress { get; set;}
 
     private string DeviceMacAdress { get; set; }
 
     private string Pin { get; set; }
+    #endregion
 
+    #region Public proprieties
     public bool IsOpen => BC.GetStream().CanRead ? BC != null : false;
 
     public bool IsAvailable => BC.GetStream().DataAvailable ? BC != null : false;
 
     public int ReadLenght => (int)BC.GetStream().Length;
+    #endregion
 
+    #region Constructors
     public BluetoothIO(string userMacAdress, string deviceMacAdress, string pin = "1234")
     {
         this.UserMacAdress = userMacAdress;
@@ -31,7 +38,9 @@ public class BluetoothIO : InterfaceIO
         this.BC = new BluetoothClient(this.EP);
         this.BTDevice = new BluetoothDeviceInfo(BluetoothAddress.Parse(this.DeviceMacAdress));
     }
+    #endregion
 
+    #region Public methods
     public void Close()
     {
         BC.Close();
@@ -86,6 +95,26 @@ public class BluetoothIO : InterfaceIO
             Debug.Log("Sorry. You cannot read from this NetworkStream.");
             return 0;
         }
+    }
+
+    public float ReadFloat()
+    {
+        byte[] byteArray = new byte[Constants.bytesForFloat];
+        for (int i = 0; i < Constants.bytesForFloat; ++i)
+        {
+            byteArray[i] = (byte)BC.GetStream().ReadByte();
+        }
+        return BitConverter.ToSingle(byteArray, 0);
+    }
+
+    public double ReadDouble()
+    {
+        byte[] byteArray = new byte[Constants.bytesForDouble];
+        for (int i = 0; i < Constants.bytesForDouble; ++i)
+        {
+            byteArray[i] = (byte)BC.GetStream().ReadByte();
+        }
+        return BitConverter.ToDouble(byteArray, 0);
     }
 
     public byte[] Read(int lenght, int offset = 0)
@@ -185,4 +214,5 @@ public class BluetoothIO : InterfaceIO
             Debug.Log("Sorry. You cannot write on this NetworkStream.");
         }
     }
+    #endregion
 }

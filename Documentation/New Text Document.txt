@@ -1,0 +1,318 @@
+0 - 100
+
+R - 1
+L - 2
+
+LRS
+FBS
+
+Move  1  -  2
+  F  FBS  -FBS
+  B -FBS   FBS
+  L  LRS   LRS
+  R -LRS  -LRS
+Stay  0     0
+
+(0, 0) = S
+0, 0 = S
+
+(100, 0) = F
+255, 255 = F
+
+(-100, 0) = B
+-255, -255 = B
+
+(0, 100) = R
+255, -255 = R
+
+(0, -100) = L
+-255, 255 = L
+
+(50, 50)
+255 0 = 45 grade la dreapta in fata
+
+(-50, 50)
+-255 0 = 45 grade la dreapta in fata
+
+(50, -50)
+0 255 = 45 grade la dreapta in fata
+
+(-50, -50)
+0 -255 = 45 grade la dreapta in fata
+
+arcsin(100, 0) = pi/2
+arcsin(-100, 0) = -pi/2
+arcsin(50, 50) = pi/4 
+
+
+0 = sqrt(0) / 2
+30 = sqrt(1) / 2
+45 = sqrt(2) / 2
+60 = sqrt(3) / 2
+90 = sqrt(4) / 2
+
+sqrt(sin(pi*x) ^ 2 + cos(pi*y) ^ 2)
+speedMultiplyer = (float)Math.Sqrt(Math.Pow(Math.Sin(Math.PI * leftThumbstickUpDown), 2) + Math.Pow(Math.Cos(Math.PI * leftThumbstickLeftRight), 2)) / maximumRadius;
+
+
+--- GOOD!!!! ---
+F 120  120 * 0.5
+R 120 -120 * 0.5
+  240   0 
+
+Ma = x + y
+xNormalizat = x/Ma
+yNormalizat = y/Ma
+
+
+x = 200
+y = x - 120
+
+
+void Forward(float speed)
+{
+  Encoder_1.setMotorPwm(speed);
+  Encoder_2.setMotorPwm(-speed);
+}
+
+void Backward(float speed)
+{
+  Encoder_1.setMotorPwm(-speed);
+  Encoder_2.setMotorPwm(speed);
+}
+
+void TurnLeft(float speed)
+{
+  Encoder_1.setMotorPwm(speed);
+  Encoder_2.setMotorPwm(speed);
+}
+
+void TurnRight(float speed)
+{
+  Encoder_1.setMotorPwm(-speed);
+  Encoder_2.setMotorPwm(-speed);
+}
+
+---NOT GOOD---
+  L    R
+-255 -255 B
+-128 -224 B - BL
+  0  -192 BL
+ 64  -160 BL - L
+-128  128 L
+ 64   160 L - FL
+  0   192 FL
+ 128  224 FL - F
+ 255  255 F
+
+ 255  255 F
+ 224  128 F - FR ?
+ 192   0  FR
+ 160 -64  FR - R ?
+ 128 -128 R
+-160 -64  R - BR ?
+-192   0  BR
+-224 -128 BR - B ?
+-255 -255 B
+
+
+
+---LOOKING GOOD V1---
+  L    R
+
+  1    1  RU
+
+~Forward/Backwards
+ 255  255 F
+ 224  128 F - FR
+ 192   0  FR
+
+~Left/Right
+ 160 -64  FR - R
+ 128 -128 R
+ 192   0  FR
+ 
+
+
+ -1    1  LU
+
+~Forward/Backwards
+ 255  255 F
+ 128  224 FL - F
+  0   192 FL
+
+~Left/Right
+-128  128 L
+-64   160 L - FL
+  0   192 FL
+
+
+
+ -1   -1  LD
+
+~Forward/Backwards
+-255 -255 B
+-128 -224 BL - B
+  0  -192 BL
+
+~Left/Right
+ 128 -128 R
+ 64  -160 R - BL
+  0  -192 BL
+
+
+
+
+---LOOKING GOOD V2---
+  L    R
+
+  1    1  RU
+  
+ 255  255 F
+ 224  128 F - FR
+ 192   0  FR
+ 160 -64  FR - R
+ 128 -128 R
+ 
+ 
+ 
+ 
+ -1    1  LU
+
+ 255  255 F
+ 128  224 FL - F
+  0   192 FL
+-64   160 L - FL
+-128  128 L
+
+
+
+ -1   -1  LD
+
+-255 -255 B
+-128 -224 BL - B
+  0  -192 BL
+ 64  -160 R - BL
+ 128 -128 R
+
+
+
+  1   -1  RD
+
+-255 -255 B
+-224 -128 B - BR
+-192   0  BR
+-160  64  BR - L
+-128  128 L
+
+
+forward/backwards 255 255
+left/right 128 -128 ???
+
+
+
+---LOOKING GOOD V3---
+  L    R
+
+  1    1  RU
+  
+ 255  255 F
+ 255  128 F - FR
+ 255   0  FR
+ 255 -128  FR - R
+ 255 -255 R
+ 
+
+
+ -1    1  LU
+
+ 255  255 F
+ 128  255 FL - F
+  0   255 FL
+-128  255 L - FL
+-255  255 L
+
+
+  1   -1  RD
+
+-255 -255 B
+-128 -255 BL - B
+  0  -255 BL
+ 128 -255 R - BL
+ 255 -255 R
+
+
+ -1   -1  LD
+
+-255 -255 B
+-255 -128 B - BR
+-255   0  BR
+-255  128 BR - L
+-255  255 L
+
+
+FB 255 255
+LR 255 -255
+
+  x    y
+  1    1  RU
+  LR * x + FB * y
+  
+ -1    1  LU
+  LR * x + FB * y
+ 
+ -1   -1  LD
+  LR * x + FB * y
+ 
+  1   -1  RD
+  LR * x + FB * y
+  
+forwardSpeedValue = 255 * y
+rotationSpeedValue = 255 * x
+  
+right = forwardSpeedValue - rotationSpeedValue
+left = -(forwardSpeedValue + rotationSpeedValue)
+
+
+
+---Template---
+  L    R
+-255 -255 B
+  ?    ?  B - BL
+  0    ?  BL
+  ?    ?  BL - L
+  ?    ?  L
+  ?    ?  L - FL
+  0    ?  FL
+  ?    ?  FL - F
+ 255  255 F
+
+ 255  255 F
+  ?    ?  F - FR
+  ?    0  FR
+  ?    ?  FR - R
+  ?    ?  R
+  ?    ?  R - BR
+  ?    0  BR
+  ?    ?  BR - B
+-255 -255 B
+
+
+https://stackoverflow.com/questions/22668912/get-data-from-bluetooth-device-in-c-sharp
+https://stackoverflow.com/questions/42701793/how-to-programmatically-pair-a-bluetooth-device
+https://www.makeblock.com/project/me-wifi
+https://stackoverflow.com/questions/16802791/pair-bluetooth-devices-to-a-computer-with-32feet-net-bluetooth-library
+http://bluetoothinstaller.com/bluetooth-command-line-tools/BluetoothCLTools-1.2.0.56.exe
+
+
+https://github.com/Makeblock-official/mBot/blob/master/mBot-default-program/MeUltrasonic.h
+https://github.com/Makeblock-official/mBot/blob/master/mBot-default-program/MeUltrasonic.cpp
+https://github.com/Makeblock-official/Makeblock-App-For-Android/tree/master/src/cc/makeblock/makeblock
+https://github.com/Makeblock-official/Makeblock-App-For-Android/blob/master/src/cc/makeblock/makeblock/BluetoothLeClass.java
+https://github.com/Makeblock-official/Makeblock-App-For-Android/blob/master/src/cc/makeblock/makeblock/BluetoothLE.java
+https://github.com/Makeblock-official/Makeblock-App-For-Android/blob/master/src/cc/makeblock/makeblock/Bluetooth.jav
+https://github.com/Makeblock-official
+https://github.com/xeecos/ArduinoUploader
+https://github.com/xeecos/ino/tree/master/ino
+https://www.makeblock.com/project/me-bluetooth-moduledual-mode
+https://www.makeblock.com/project/me-wifi

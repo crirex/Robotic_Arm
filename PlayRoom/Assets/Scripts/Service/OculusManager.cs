@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OculusManager: Singleton<OculusManager>
 {
-    #region Proprieties
+    #region Public proprieties
     public float RightHandTrigger { get; private set; }
     public float LeftHandTrigger { get; private set; }
     public float RightIndexTrigger { get; private set; }
@@ -30,11 +30,10 @@ public class OculusManager: Singleton<OculusManager>
     #region Constructors
     private OculusManager()
     {
-        UpdateValues();
     }
     #endregion
 
-    #region Public functions
+    #region Public methods
     public void UpdateValues()
     {
         RightHandTrigger = OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger);

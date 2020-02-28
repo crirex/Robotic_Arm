@@ -2,11 +2,13 @@
 
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    // Check to see if we're about to be destroyed.
-    private static bool shuttingDown = false;
-    private static object locker = new object();
+    #region Private members
+    private static bool shuttingDown = false; // Check to see if we're about to be destroyed.
+    private static readonly object locker = new object(); // Protection against multithreading
     private static T instance;
+    #endregion
 
+    #region Methods
     /// <summary>
     /// Access singleton instance through this propriety.
     /// </summary>
@@ -57,4 +59,5 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         shuttingDown = true;
     }
+    #endregion
 }

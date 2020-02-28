@@ -1,0 +1,55 @@
+
+        static void bluetoothConnection()
+        {
+			// My BT USB adapter
+			private static BluetoothEndPoint EP = new BluetoothEndPoint(BluetoothAddress.Parse(laptopMac), BluetoothService.BluetoothBase);
+			private static BluetoothClient BC = new BluetoothClient(EP);
+
+			// The BT device that would connect
+			private static BluetoothDeviceInfo BTDevice = new BluetoothDeviceInfo(BluetoothAddress.Parse(robotMac));
+
+			private static NetworkStream stream = null;
+
+            if (BluetoothSecurity.PairRequest(BTDevice.DeviceAddress, robotPin))
+            {
+                Debug.Log("PairRequest: OK");
+
+                if (BTDevice.Authenticated)
+                {
+                    Debug.Log("Authenticated: OK");
+                    BC.SetPin(robotPin);
+                    BC.BeginConnect(BTDevice.DeviceAddress, BluetoothService.SerialPort, new AsyncCallback(Connect), BTDevice);
+                }
+                else
+                {
+                    Debug.Log("Authenticated: No");
+                }
+            }
+            else
+            {
+                Debug.Log("PairRequest: No");
+            }
+
+        }
+
+    private static void Connect(IAsyncResult result)
+    {
+        if (result.IsCompleted)
+        {
+            // client is connected now :)
+            Debug.Log(BC.Connected);
+            stream = BC.GetStream();
+
+            if (stream.CanRead)
+            {
+				//do{
+				//	stream.Read(myReadBuffer, 0, myReadBuffer.Length);
+                //}while (stream.DataAvailable);
+                Debug.Log("You can read from this NetworkStream.");
+            }
+            else
+            {
+                Debug.Log("Sorry. You cannot read from this NetworkStream.");
+            }    
+        }
+    }

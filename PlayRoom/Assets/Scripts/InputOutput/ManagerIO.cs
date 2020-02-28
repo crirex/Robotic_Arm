@@ -4,23 +4,26 @@ using UnityEngine;
 
 public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
 {
+    #region Private members
     [SerializeField]
-    private string portName = "COM8";
+    private string portName = "COM4";
 
     [SerializeField]
     private int baudRate = 115200;
 
-    [SerializeField]
-    private string laptopMac = "A4:C3:F0:9E:F1:4B";
+    //[SerializeField]
+    //private string laptopMac = "A4:C3:F0:9E:F1:4B";
 
-    [SerializeField]
-    private string robotMac = "00:1B:10:64:4A:99";
+    //[SerializeField]
+    //private string robotMac = "00:1B:10:64:4A:99";
 
-    [SerializeField]
-    private string robotPin = "0000";
-
+    //[SerializeField]
+    //private string robotPin = "0000";
+    
     private List<InterfaceIO> membersIO = new List<InterfaceIO>();
+    #endregion
 
+    #region Public proprieties
     public bool IsOpen
     {
         get
@@ -66,14 +69,18 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
             return totalLenght;
         }
     }
+    #endregion
 
+    #region Constructors
     private ManagerIO()
     {
         //AddMember(new BluetoothIO(laptopMac, robotMac, robotPin));
         AddMember(new SerialPortIO(portName, baudRate));
         Initialize();
     }
+    #endregion
 
+    #region Public methods
     public void AddMember(InterfaceIO newMemberIO)
     {
         membersIO.Add(newMemberIO);
@@ -131,6 +138,30 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
         return 0;
     }
 
+    public float ReadFloat()
+    {
+        foreach (InterfaceIO memberIO in membersIO)
+        {
+            if (memberIO.IsAvailable)
+            {
+                return memberIO.ReadFloat();
+            }
+        }
+        return 0;
+    }
+
+    public double ReadDouble()
+    {
+        foreach (InterfaceIO memberIO in membersIO)
+        {
+            if (memberIO.IsAvailable)
+            {
+                return memberIO.ReadDouble();
+            }
+        }
+        return 0;
+    }
+
     public byte[] Read(int lenght, int offset = 0)
     {
         foreach (InterfaceIO memberIO in membersIO)
@@ -170,4 +201,5 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
             memberIO.Close();
         }
     }
+    #endregion
 }

@@ -1,0 +1,11 @@
+Sunfounder Robotic Arm with arduino:
+https://www.sunfounder.com/sunfounder-robotic-arm-edge-kit.html  ---  https://www.youtube.com/watch?v=_LrHzQ4OmK8
+
+Tank Robot Kit with rasppbery Pi 3:
+https://www.ebay.co.uk/itm/163766036800  ---  https://ae-cn.alicdn.com/bX4YxVetYwnYsLrBV3t/BO8H4zLLSOhOTMYuR5i%40%40hd.mp4
+
+6DOF Aluminium Robot without arduino:
+https://www.amazon.de/Diymore-Aluminium-Roboterarm-Mechanische-MEGA2560/dp/B07FM1VGTV/ref=sr_1_8?keywords=roboterarm&qid=1565691215&s=toys&sr=1-8&th=1  ---  https://www.youtube.com/watch?v=uBP4FCDORtQ
+
+SainSmart 6-Axis Robotic Arm without arduino and without claw:
+https://www.amazon.com/SainSmart-Desktop-Grippers-Assembled-MEGA2560/dp/B00UMOSQCI/ref=as_li_ss_tl?ref_=fsclp_pl_dp_1&linkCode=sl1&tag=inventionswor-20&linkId=f154d4912701af7f95bf3b42c806e8e4&language=en_US  ---  https://youtu.be/MaYx9l-ivCQ?t=250

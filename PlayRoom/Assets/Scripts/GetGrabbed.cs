@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class GetGrabbed : MonoBehaviour
 {
+    #region Public static members
+    public static bool grabbed = false;
+    #endregion
+
+    #region Private members
     [SerializeField]
     private GameObject claw;
+    private Rigidbody thisRigidBody;
+    private List<Collider> collidedObjects = new List<Collider>();
+    #endregion
 
-    Rigidbody thisRigidBody;
+    #region Methods
     // Start is called before the first frame update
     void Start()
     {
@@ -16,9 +24,7 @@ public class GetGrabbed : MonoBehaviour
         gameObject.transform.parent = null;
         gameObject.layer = 9;
     }
-    //make a list to track collided objects
-    List<Collider> collidedObjects = new List<Collider>();
-
+    
     void FixedUpdate()
     {
         collidedObjects.Clear(); //clear the list of all tracked objects.
@@ -48,14 +54,15 @@ public class GetGrabbed : MonoBehaviour
             gameObject.transform.parent = claw.transform;
             Debug.Log(gameObject.transform.parent);
             gameObject.layer = 11;
-            RobotTank.hasObject = true;
+            grabbed = true;
         }
         if(!OVRInput.Get(OVRInput.Button.SecondaryHandTrigger))
         {
             thisRigidBody.isKinematic = false;
             gameObject.transform.parent = null;
             gameObject.layer = 9;
-            RobotTank.hasObject = false;
+            grabbed = false;
         }
     }
+    #endregion
 }

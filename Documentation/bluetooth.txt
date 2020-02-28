@@ -1,0 +1,132 @@
+using InTheHand.Net.Bluetooth;
+using InTheHand.Net.Sockets;
+using InTheHand.Net;
+using System.Management;
+
+
+
+    //0000 or 1234 is the pin
+    List<BluetoothDeviceInfo> deviceList = new List<BluetoothDeviceInfo>();
+    void bluetoothConnection()
+    {
+
+        // mac is mac address of local bluetooth device
+        BluetoothAddress bluetoothMACAdress = new BluetoothAddress(FindMACAddress());
+        Debug.Log("AAA:" + bluetoothMACAdress);
+        BluetoothEndPoint localEndpoint = new BluetoothEndPoint(bluetoothMACAdress, BluetoothService.SerialPort);
+        Debug.Log("AAA:" + localEndpoint);
+        // client is used to manage connections
+        BluetoothClient localClient = new BluetoothClient(localEndpoint);
+        Debug.Log("AAA:" + localClient);
+        // component is used to manage device discovery
+        BluetoothComponent localComponent = new BluetoothComponent(localClient);
+        Debug.Log("AAA:" + localComponent);
+        // async methods, can be done synchronously too
+        localComponent.DiscoverDevicesAsync(255, true, true, true, true, null);
+        localComponent.DiscoverDevicesProgress += new EventHandler<DiscoverDevicesEventArgs>(component_DiscoverDevicesProgress);
+        localComponent.DiscoverDevicesComplete += new EventHandler<DiscoverDevicesEventArgs>(component_DiscoverDevicesComplete);
+
+        Debug.Log("AAA:" + deviceList);
+
+        BluetoothDeviceInfo[] paired = localClient.DiscoverDevices(255, false, true, false, false);
+
+        Debug.Log("AAA:" + paired);
+
+        // check every discovered device if it is already paired 
+        foreach (BluetoothDeviceInfo device in this.deviceList)
+        {
+            bool isPaired = false;
+            for (int i = 0; i < paired.Length; i++)
+            {
+                if (device.Equals(paired[i]))
+                {
+                    isPaired = true;
+                    break;
+                }
+            }
+
+            // if the device is not paired, pair it!
+            if (!isPaired)
+            {
+                // replace DEVICE_PIN here, synchronous method, but fast
+                //isPaired = BluetoothSecurity.PairRequest(device.DeviceAddress, "0000");
+                if (isPaired)
+                {
+                    // now it is paired
+                }
+                else
+                {
+                    //isPaired = BluetoothSecurity.PairRequest(device.DeviceAddress, "1234");
+                    if (isPaired)
+                    {
+                        // now it is paired
+                    }
+                    else
+                    {
+                        Debug.Log("AAA:" + "Pairing failed.");
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void component_DiscoverDevicesProgress(object sender, DiscoverDevicesEventArgs e)
+    {
+        // log and save all found devices
+        for (int i = 0; i < e.Devices.Length; i++)
+        {
+            if (e.Devices[i].Remembered)
+            {
+                Debug.Log(e.Devices[i].DeviceName + " (" + e.Devices[i].DeviceAddress + "): Device is known");
+            }
+            else
+            {
+                Debug.Log(e.Devices[i].DeviceName + " (" + e.Devices[i].DeviceAddress + "): Device is unknown");
+            }
+            this.deviceList.Add(e.Devices[i]);
+        }
+    }
+
+    private void component_DiscoverDevicesComplete(object sender, DiscoverDevicesEventArgs e)
+    {
+        // log some stuff
+    }
+
+    public long FindMACAddress()
+    {
+        //create out management class object using the
+        //Win32_NetworkAdapterConfiguration class to get the attributes
+        //af the network adapter
+        ManagementClass mgmt = new ManagementClass("Win32_NetworkAdapterConfiguration");
+        //create our ManagementObjectCollection to get the attributes with
+        ManagementObjectCollection objCol = mgmt.GetInstances();
+        //string address = String.Empty;
+        long address = 0;
+        //My modification to the code
+        var description = String.Empty;
+        //loop through all the objects we find
+        foreach (ManagementObject obj in objCol)
+        {
+            //if (address == String.Empty)  // only return MAC Address from first card
+            if (address == 0)
+            {
+                //grab the value from the first network adapter we find
+                //you can change the string to an array and get all
+                //network adapters found as well
+                if ((bool)obj["IPEnabled"] == true)
+                {
+                    //address = obj["MacAddress"].ToString();
+                    address = (long)obj["MacAddress"];
+                    description = obj["Description"].ToString();
+                }
+            }
+            //dispose of our object
+            obj.Dispose();
+        }
+        //replace the ":" with an empty space, this could also
+        //be removed if you wish
+        //address = address.Replace(":", "");
+        //return the mac address
+        return address;
+    }

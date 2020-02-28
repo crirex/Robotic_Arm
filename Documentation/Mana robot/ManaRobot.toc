@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}Introducere}{3}{section.1}%
+\contentsline {section}{\numberline {2}Idei de dezvoltare}{3}{section.2}%
+\contentsline {section}{\numberline {3}Tehnologii}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Unity}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}C\#}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}MegaPi}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Bluetooth}{8}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Ultimate 2.0 \IeC {\textendash } 10 in 1 Robot Kit}{10}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Exemple de func\IeC {{\textcommabelow t}}ionalitate \IeC {{\textcommabelow s}}i cod}{10}{section.4}%
+\contentsline {section}{\numberline {5}Bibliografie}{16}{section.5}%

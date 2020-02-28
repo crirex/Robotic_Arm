@@ -1,5 +1,6 @@
 ﻿public interface InterfaceIO
 {
+    #region Proprieties
     /// <summary>
     /// Connection is open
     /// </summary>
@@ -14,7 +15,9 @@
     /// Number of bytes to read
     /// </summary>
     int ReadLenght { get; }
+    #endregion
 
+    #region Methods
     /// <summary>
     /// Write a bytes with a character
     /// </summary>
@@ -46,6 +49,16 @@
     int Read();
 
     /// <summary>
+    /// Read a float
+    /// </summary>
+    float ReadFloat();
+
+    /// <summary>
+    /// Read a float
+    /// </summary>
+    double ReadDouble();
+
+    /// <summary>
     /// Full controll read for bytes
     /// </summary>
     byte[] Read(int lenght, int offset = 0);
@@ -64,4 +77,5 @@
     /// Close connection
     /// </summary>
     void Close();
+    #endregion
 }

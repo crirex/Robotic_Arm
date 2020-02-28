@@ -6,20 +6,27 @@ using UnityEngine;
 
 public class SerialPortIO : InterfaceIO
 {
+    #region Private members
     private SerialPort serial;
+    #endregion
 
+    #region Public proprieties
     public bool IsOpen => serial.IsOpen;
 
     public bool IsAvailable => serial.BytesToRead > 0 ? serial != null : false;
 
     public int ReadLenght => serial.BytesToRead;
+    #endregion
 
+    #region Constructors
     public SerialPortIO(string portName, int baudRate)
     {
         this.serial = new SerialPort(portName, baudRate);
         this.serial.ReadTimeout = 1;
     }
+    #endregion
 
+    #region Public methods
     public void Close()
     {
         serial.Close();
@@ -49,6 +56,26 @@ public class SerialPortIO : InterfaceIO
             Debug.Log("Sorry, you can not read from serial.");
             return 0;
         }
+    }
+
+    public float ReadFloat()
+    {
+        byte[] byteArray = new byte[Constants.bytesForFloat];
+        for (int i = 0; i < Constants.bytesForFloat; ++i)
+        {
+            byteArray[i] = (byte)ManagerIO.Instance.Read();
+        }
+        return BitConverter.ToSingle(byteArray, 0);
+    }
+
+    public double ReadDouble()
+    {
+        byte[] byteArray = new byte[Constants.bytesForDouble];
+        for (int i = 0; i < Constants.bytesForDouble; ++i)
+        {
+            byteArray[i] = (byte)ManagerIO.Instance.Read();
+        }
+        return BitConverter.ToDouble(byteArray, 0);
     }
 
     public byte[] Read(int lenght, int offset = 0)
@@ -145,4 +172,5 @@ public class SerialPortIO : InterfaceIO
             Debug.Log("Sorry, you can not write to serial.");
         }
     }
+    #endregion
 }
