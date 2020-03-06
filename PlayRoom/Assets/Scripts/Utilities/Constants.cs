@@ -5,22 +5,29 @@ using UnityEngine;
 public class Constants
 {
     #region Boundaries
-    public const int maximumSpeed = 150; // This can be put all the way to 255 only but the tests are going to be for 150 as it's speed is adequate and it would be okay for simulations that the speed is the same.
     public const int minimumSpeed = 150;
+    public const int maximumSpeed = 150; // This can be put all the way to 255 only but the tests are going to be for 150 as it's speed is adequate and it would be okay for simulations that the speed is the same.
 
-    public const float maximumOutwardsClawRotation = 0f; //Rotations tested for right claw, left claw has oposite rotations
-    public const float maximumInwardsClawRotation = -32.8f;
-    public const float OutwardsXPosition = 0.0654f;
-    public const float InwardsRightClawXPosition = 0.0716f;
-    public const float InwardsLeftClawXPosition = OutwardsXPosition - (InwardsRightClawXPosition - OutwardsXPosition);
-    public const float OutwardsZPosition = 0.2178f;
-    public const float InwardsRightClawZPosition = 0.2062f;
-    public const float InwardsLeftClawZPosition = OutwardsZPosition - (OutwardsZPosition - InwardsRightClawZPosition);
-    public const float maximumMotorObjectZPositionOffset = -0.01f;
-    public const float maximumBackwardsUpperBodyRotation = -95.3f;
-    public const float maximumForwardsUpperBodyRotation = 16f;
-    public const float maximumXRotationInWhichTheTankCanMove = 100;
+    public const float minimumClawRotation = -67.0f;
+    public const float maximumClawRotation = 0f; //Rotations tested for right claw, left claw has oposite rotations
+
+    public const float minimumClawXPosition = 0.027f;
+    public const float maximumClawXPosition = 0.0f;
+
+    public const float minimumClawZPosition = -0.04f;
+    public const float maximumClawZPosition = -0.0165f;
+
+    public const float minimumClawGrabberXPosition = 0.018f;
+    public const float maximumClawGrabberXPosition = 0.0553f;
+    
     public const float minimumXRotationInWhichTheTankCanMove = 80;
+    public const float maximumXRotationInWhichTheTankCanMove = 100;
+
+    public const float minimumMotorObjectZPosition = 0.22f;
+    public const float maximumMotorObjectZPosition = 0.236f;
+
+    public const float minimumUpperBodyRotation = -95.3f;
+    public const float maximumUpperBodyRotation = 16f;
 
     public const float deadZone = 0.2f;
     public const float maximumRadius = 1f;

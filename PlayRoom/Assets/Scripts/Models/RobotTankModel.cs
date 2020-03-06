@@ -25,6 +25,10 @@ public class RobotTankModel: MonoBehaviour
     public static GameObject motorObject;
     [SerializeField]
     public static GameObject grabObject;
+    [SerializeField]
+    public static GameObject rightClawGrabber;
+    [SerializeField]
+    public static GameObject leftClawGrabber;
 
     public static float firstMotorObjectZPosition;
     #endregion
@@ -42,6 +46,8 @@ public class RobotTankModel: MonoBehaviour
         rotationBody = GameObject.Find("RotationBody");
         motorObject = GameObject.Find("MotorAffectedObjects");
         grabObject = GameObject.Find("GrabCube");
+        rightClawGrabber = GameObject.Find("RightClawGrabber");
+        leftClawGrabber = GameObject.Find("LeftClawGrabber");
         firstMotorObjectZPosition = motorObject.transform.localPosition.z;
         upperBodyBelow.transform.localRotation = Quaternion.Euler(
             upperBodyBelow.transform.localRotation.eulerAngles.x,

@@ -24,7 +24,9 @@ public class OculusManager: Singleton<OculusManager>
     public Vector3 LeftControllerPosition { get; private set; }
     public Vector3 RightControllerPosition { get; private set; }
     public Vector3 LeftControllerRotation { get; private set; }
-    public Vector3 RightControllerRotation { get; private set; } 
+    public Vector3 RightControllerRotation { get; private set; }
+
+    public bool AreTouchControllersDetected { get { return OVRInput.GetConnectedControllers() == OVRInput.Controller.Touch; } }
     #endregion
 
     #region Constructors
