@@ -184,12 +184,28 @@ public class RobotTankActions: Singleton<RobotTankActions>
     {
         if (PhysicalTankDataManager.Instance.UtrasonicDistance < Constants.maximumUtrasonicDistance)
         {
-            Transform tankTransform = RobotTankModel.robotArmTank.transform;
-            RobotTankModel.grabObject.transform.position = new Vector3(
-                tankTransform.transform.position.x, 
-                RobotTankModel.grabObject.transform.position.y,
-                tankTransform.transform.position.z + 
-                PhysicalTankDataManager.Instance.UtrasonicDistance * Constants.oneCM + Constants.objectDistanceCorrector);
+            RobotTankModel.grabCubeAncor.transform.localRotation = Quaternion.Euler(
+                RobotTankModel.grabCubeAncor.transform.localRotation.eulerAngles.x,
+                -RobotTankModel.rotationBody.transform.localRotation.eulerAngles.z, 
+                RobotTankModel.grabCubeAncor.transform.localRotation.eulerAngles.z); 
+            RobotTankModel.grabCubeAncor.transform.position = RobotTankModel.movementBody.transform.position;
+
+            float newPossition = Constants.objectDistanceCorrector + 
+                PhysicalTankDataManager.Instance.UtrasonicDistance * Constants.oneCM;
+            if (RobotTankModel.grabObject.transform.position.y < 0.9)
+            {
+                RobotTankModel.grabObject.transform.position = new Vector3(
+                    RobotTankModel.grabObject.transform.position.x, 
+                    0.909f, 
+                    RobotTankModel.grabObject.transform.position.z);
+            }
+            if (!GetGrabbed.grabbed)
+            {
+                RobotTankModel.grabObject.transform.localPosition = new Vector3(
+                    RobotTankModel.grabObject.transform.localPosition.x,
+                    RobotTankModel.grabObject.transform.localPosition.y,
+                    newPossition);
+            }
         }
     }
 

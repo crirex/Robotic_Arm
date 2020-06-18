@@ -9,8 +9,6 @@ public class GetGrabbed : MonoBehaviour
     #endregion
 
     #region Private members
-    [SerializeField]
-    private GameObject claw;
     private Rigidbody thisRigidBody;
     private List<Collider> collidedObjects = new List<Collider>();
     #endregion
@@ -21,8 +19,8 @@ public class GetGrabbed : MonoBehaviour
     {
         thisRigidBody = gameObject.GetComponent<Rigidbody>();
         thisRigidBody.isKinematic = false;
-        gameObject.transform.parent = null;
-        gameObject.layer = 9;
+        gameObject.transform.parent = GameObject.Find("GrabCubeAncor").transform;
+        gameObject.layer = 11;
     }
     
     void FixedUpdate()
@@ -47,19 +45,18 @@ public class GetGrabbed : MonoBehaviour
     {
         var numberOfColliders = collidedObjects.Count; // this should give you the number you need
         collidedObjects.Clear(); // You can also clear the list here
-        //if (OVRInput.Get(OVRInput.Button.SecondaryHandTrigger))
-        if (numberOfColliders >= 3)
+        if (numberOfColliders >= 3) // && OVRInput.Get(OVRInput.Button.SecondaryHandTrigger)
         {
-            thisRigidBody.isKinematic = true;
-            gameObject.transform.parent = claw.transform;
+            thisRigidBody.isKinematic = true; 
+            gameObject.transform.parent = RobotTankModel.rightLeftClaw.transform;
             Debug.Log(gameObject.transform.parent);
             gameObject.layer = 11;
             grabbed = true;
         }
-        if(!OVRInput.Get(OVRInput.Button.SecondaryHandTrigger))
+        if(OVRInput.Get(OVRInput.Button.PrimaryHandTrigger))
         {
             thisRigidBody.isKinematic = false;
-            gameObject.transform.parent = null;
+            gameObject.transform.parent = RobotTankModel.grabCubeAncor.transform;
             gameObject.layer = 9;
             grabbed = false;
         }

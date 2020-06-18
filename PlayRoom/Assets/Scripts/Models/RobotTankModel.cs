@@ -12,6 +12,8 @@ public class RobotTankModel: MonoBehaviour
     [SerializeField]
     public static GameObject rightClaw;
     [SerializeField]
+    public static GameObject rightLeftClaw;
+    [SerializeField]
     public static GameObject upperBodyBelow;
     [SerializeField]
     public static GameObject upperBodyAbove;
@@ -26,6 +28,8 @@ public class RobotTankModel: MonoBehaviour
     [SerializeField]
     public static GameObject grabObject;
     [SerializeField]
+    public static GameObject grabCubeAncor;
+    [SerializeField]
     public static GameObject rightClawGrabber;
     [SerializeField]
     public static GameObject leftClawGrabber;
@@ -36,6 +40,8 @@ public class RobotTankModel: MonoBehaviour
     #region Methods
     void Start()
     {
+        grabCubeAncor = GameObject.Find("GrabCubeAncor");
+        rightLeftClaw = GameObject.Find("RightLeftClaw");
         robotArmTank = GameObject.Find("RobotArmTank");
         leftClaw = GameObject.Find("LeftClaw");
         rightClaw = GameObject.Find("RightClaw");

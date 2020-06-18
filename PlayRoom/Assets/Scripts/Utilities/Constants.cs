@@ -37,10 +37,10 @@ public class Constants
     public const float rotationRightSpeedCorrector = 0.0095f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
     public const float rotationLeftSpeedCorrector = 0.01f; // It seems rotation to the left and right are different, this time i don't think it's gravity tho... idk what it is.
     public const float forwardSpeedCorrector = 0.00002724f; // This value is sync
-    public const float armGoingDownSpeedCorrector = 0.0053f; // Because of gravity it moves up slower. //This value is sync
-    public const float armGoingUpSpeedCorrector = 0.0051f; // This value is sync
-    public const float clawSpeedCorrector = 0.0021f; // This value is sync
-    public const float objectDistanceCorrector = 0.162f;
+    public const float armGoingDownSpeedCorrector = 0.0058f; // Because of gravity it moves up slower. //This value is sync
+    public const float armGoingUpSpeedCorrector = 0.0056f; // This value is sync
+    public const float clawSpeedCorrector = 0.0049f;
+    public const float objectDistanceCorrector = 0.23f;
     #endregion
 
     #region Data Conversation

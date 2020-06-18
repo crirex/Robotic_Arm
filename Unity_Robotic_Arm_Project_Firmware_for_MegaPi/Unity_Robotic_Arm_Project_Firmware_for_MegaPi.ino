@@ -124,13 +124,6 @@ void sendUltrasonicSensorData()
   writeData(distance);
 }
 
-void setup() 
-{
-  Serial.begin(115200);
-  dc.reset(PORT4B);
-  gyro.begin();
-}
-
 void sendDataPart()
 {
   Serial.write(syncChar);
@@ -153,6 +146,13 @@ void readMovementInfo()
   {
     armAction();
   }
+}
+
+void setup() 
+{
+  Serial.begin(115200);
+  dc.reset(PORT4B);
+  gyro.begin();
 }
 
 TimedAction sendThread = TimedAction(20,sendDataPart);

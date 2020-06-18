@@ -6,7 +6,7 @@ public class ManagerIO : Singleton<ManagerIO>, InterfaceIO
 {
     #region Private members
     [SerializeField]
-    private string portName = "COM4";
+    private string portName = "COM9";
 
     [SerializeField]
     private int baudRate = 115200;
